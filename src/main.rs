@@ -1,57 +1,34 @@
 use std::fmt::{Debug, Formatter};
-use std::{borrow::BorrowMut, cell::RefCell, rc::Rc};
+use std::{ cell::RefCell, rc::Rc};
+use activation_functions::ActivationFunction;
 
-// #[derive(Debug)]
-struct NeuralNetworkLayer {
-  bias: Vec<f64>,
-  weights: Vec<Vec<f64>>,
-  next_layer: Option<Rc<RefCell<NeuralNetworkLayer>>>,
-  prev_layer: Option<Rc<RefCell<NeuralNetworkLayer>>>,
-}
-
-impl Debug for NeuralNetworkLayer {
-  fn fmt(&self, f: &mut Formatter) -> Result<(), std::fmt::Error> {
-    // let gg =self.next_layer.as_ref().unwrap().borrow().;
-    let next_layer_ptr;
-    if let Some(next_layer) = self.next_layer.as_ref() {
-      next_layer_ptr = format!("{:p}", &*next_layer.borrow());
-    } else {
-      next_layer_ptr = "0".to_string();
-    }
-    let prev_layer_ptr;
-    if let Some(prev_layer) = self.prev_layer.as_ref() {
-      prev_layer_ptr = format!("{:p}", &*prev_layer.borrow());
-    } else {
-      prev_layer_ptr = "0".to_string();
-    }
-    f.debug_struct("NeuralNetworkLayer")
-      .field("address", &format!("{:p}", self))
-      .field("bias", &self.bias)
-      .field("weights", &self.weights)
-      .field("next_layer", &next_layer_ptr)
-      .field("prev_layer", &prev_layer_ptr)
-      .finish()
-  }
-}
-
+use crate::cost_functions::CostFunction;
+use crate::neural_network_layer::NeuralNetworkLayer;
+use crate::layer_details::LayerDetails;
+mod neural_network_layer;
+mod activation_functions;
+mod layer_details;
+mod cost_functions;
 #[derive(Debug)]
-struct NeuralNetwork {
-  layers: Vec<Rc<RefCell<NeuralNetworkLayer>>>,
+struct NeuralNetwork<T: ActivationFunction, C: CostFunction>{
+  layers: Vec<Rc<RefCell<NeuralNetworkLayer<T>>>>,
+  cost_function: C
 }
 
-impl NeuralNetwork {
-  fn new(layer_sizes: &[usize]) -> NeuralNetwork {
+impl<T: ActivationFunction,C: CostFunction> NeuralNetwork<T,C>{
+  fn new(layers_details: &[LayerDetails<T>], cost_function: C) -> NeuralNetwork<T,C> {
     let mut layers = vec![];
-    let layers_count = layer_sizes.len();
+    let layers_count = layers_details.len();
     layers.reserve(layers_count);
-
-    for &layer_size in layer_sizes {
+    
+    for layer_details in layers_details {
       let prev_layer = layers.last();
       let current_layer = NeuralNetworkLayer {
-        bias: vec![0.0; layer_size],
-        weights: vec![Vec::new(); layer_size],
+        bias: vec![0.0; layer_details.layer_size],
+        weights: vec![Vec::new(); layer_details.layer_size],
         next_layer: None,
         prev_layer: prev_layer.cloned(),
+        activation_function: layer_details.activation_function.clone()
       };
 
       let current_layer_rc = Rc::new(RefCell::new(current_layer));
@@ -62,11 +39,14 @@ impl NeuralNetwork {
 
       layers.push(current_layer_rc);
     }
-    return NeuralNetwork { layers: layers };
+    return NeuralNetwork { layers: layers, cost_function:cost_function };
   }
 }
 
 fn main() {
-  let neural_network = NeuralNetwork::new(&[1, 1]);
+  let neural_network = NeuralNetwork::new(&[
+    LayerDetails::new(1,activation_functions::Linear),
+    LayerDetails::new(1,activation_functions::Linear)
+  ], cost_functions::MSE);
   println!("{:#?}", neural_network);
 }
