@@ -11,6 +11,7 @@ pub struct NeuralNetwork<T: ActivationFunction, C: CostFunction>{
 
 impl<T: ActivationFunction,C: CostFunction> NeuralNetwork<T,C>{
   pub fn new(layers_details: &[LayerDetails<T>], cost_function: C) -> NeuralNetwork<T,C> {
+    assert!(layers_details.len()>=2,"There are not enough layers to function({} layers), please make at least 2", layers_details.len());
     let mut layers: Vec<Rc<RefCell<NeuralNetworkLayer<T>>>> = vec![];
     let layers_count = layers_details.len();
     layers.reserve(layers_count);
@@ -30,7 +31,6 @@ impl<T: ActivationFunction,C: CostFunction> NeuralNetwork<T,C>{
       let current_layer = NeuralNetworkLayer {
         biases,
         weights,
-        values: vec![1.0;layer_details.layer_size],
         size: layer_details.layer_size,
         next_layer: None,
         prev_layer: prev_layer.cloned(),
@@ -48,9 +48,8 @@ impl<T: ActivationFunction,C: CostFunction> NeuralNetwork<T,C>{
     return NeuralNetwork { layers: layers, cost_function:cost_function };
   }
 
-  pub fn forward_propagate(&self,input: Vec<f64>){
+  pub fn forward_propagate(&self,input: Vec<f64>) -> Vec<f64>{
     assert_eq!(input.len(),self.layers[0].borrow().size);
-    self.layers[0].borrow_mut().values=input;
-    self.layers[0].borrow_mut().forward_propagate();
+    return self.layers[1].borrow_mut().forward_propagate(&input);
   }
 }

@@ -1,27 +1,32 @@
-use std::{cell::RefCell, rc::Rc};
 use std::fmt::{Debug, Formatter};
+use std::{cell::RefCell, rc::Rc};
 
 use crate::activation_functions::ActivationFunction;
 use crate::linear_algebra::{add_vector, matrix_cross_vector};
 
 // #[derive(Debug)]
-pub struct NeuralNetworkLayer<T:ActivationFunction>{
+pub struct NeuralNetworkLayer<T: ActivationFunction> {
   pub biases: Vec<f64>,
   pub weights: Vec<Vec<f64>>,
-  pub values: Vec<f64>,
   pub size: usize,
   pub next_layer: Option<Rc<RefCell<NeuralNetworkLayer<T>>>>,
   pub prev_layer: Option<Rc<RefCell<NeuralNetworkLayer<T>>>>,
-  pub activation_function: T
+  pub activation_function: T,
 }
 
-impl<T: ActivationFunction> NeuralNetworkLayer<T>{
-  pub fn forward_propagate(&self){
-    if self.next_layer.is_none(){
-      return;
+impl<T: ActivationFunction> NeuralNetworkLayer<T> {
+  pub fn forward_propagate(&self, prev_values: &Vec<f64>) -> Vec<f64>{
+    let z = add_vector(
+      &matrix_cross_vector(&self.weights, &prev_values),
+      &self.biases,
+    );
+    let values = T::activate(&z);
+    
+    if self.next_layer.is_none() {
+      return values;
     }
-    let next_layer = self.next_layer.as_ref().unwrap().borrow_mut();
-    let z = add_vector(&matrix_cross_vector(&next_layer.weights,& self.values),&next_layer.biases);
+    let next_layer = self.next_layer.as_ref().unwrap().borrow();
+    return next_layer.forward_propagate(&values);
   }
 }
 

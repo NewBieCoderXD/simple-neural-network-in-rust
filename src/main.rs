@@ -13,7 +13,8 @@ fn main() {
     LayerDetails::new(1,activation_functions::Linear)
   ], cost_functions::MSE);
   let predicted = neural_network.forward_propagate(vec![1.0,2.0]);
-  println!("{:#?}", neural_network);
+  // println!("{:#?}", neural_network);
+  println!("{:?}",predicted);
 
   // let matrix = vec![
   //   vec![1,2,3,4],
