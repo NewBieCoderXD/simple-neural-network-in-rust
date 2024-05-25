@@ -12,14 +12,9 @@ pub struct Linear;
 
 impl ActivationFunction for Linear{
   fn activate(value: &Vec<f64>) -> Vec<f64>{
-    value.iter().map(|&ele| ele.max(0.0)).collect()
+    value.iter().cloned().collect()
   }
   fn derivative(value: &Vec<f64>) -> Vec<f64>{
-    value.iter().map(|&ele| {
-      if ele<=0.0{
-        return 0.0;
-      }
-      return 1.0;
-    }).collect()
+    vec![1.0;value.len()]
   }
 }
