@@ -23,8 +23,8 @@ fn main() {
   //   (vec![1.0,2.0],vec![3.0])
   // ]
   let mut datas = vec![];
-  for i in 0 .. 10{
-    for j in 0 .. 10{
+  for i in 1 .. 100{
+    for j in 1 .. 100{
       let i = i as f64;
       let j = j as f64;
       datas.push((vec![i,j],vec![i+j]));
@@ -32,20 +32,16 @@ fn main() {
   }
   for (x,y) in &datas{
     let predicted = neural_network.forward_propagate(x);
+    if predicted[0].is_nan(){
+      break;
+    }
     println!("x: {:?}, y: {:?}, predicted: {:?}", x, y, predicted);
+    // println!("{:?}", neural_network);
     neural_network.back_propagate(y, learning_rate);
   }
   println!("{:#?}", neural_network);
-  let predicted = neural_network.forward_propagate(&vec![8.0,14.0]);
-  println!("{:?}", predicted);
-  // let predicted2 = neural_network.forward_propagate(vec![1.0, 2.0]);
-  // println!("{:?}", predicted2);
 
-  // println!("{:#?}", neural_network);
-  // let matrix = vec![
-  //   vec![1,2,3,4],
-  //   vec![5,6,7,8],
-  // ];
-  // let vec = vec![99,8,7,2];
-  // println!("{:?}",matrix_dot_vector(&matrix, &vec));
+  let test = vec![8.0,14.0];
+  let predicted = neural_network.forward_propagate(&test);
+  println!("test: {:?}, result: {:?}", test, predicted);
 }

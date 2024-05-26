@@ -1,8 +1,7 @@
-use std::{cell::{Ref, RefCell}, fmt::Pointer, rc::Rc};
-
+use std::{cell::{Ref, RefCell}, rc::Rc};
+use rand::Rng;
 use crate::{
-  activation_functions::ActivationFunction, cost_functions::CostFunction,
-  layer_details::LayerDetails, neural_network_layer::NeuralNetworkLayer,
+  activation_functions::ActivationFunction, cost_functions::CostFunction, hadamard_product, layer_details::LayerDetails, neural_network_layer::NeuralNetworkLayer
 };
 use std::fmt::Debug;
 
@@ -27,6 +26,11 @@ impl<T: ActivationFunction, C: CostFunction> Debug for NeuralNetwork<T, C> {
 }
 
 impl<T: ActivationFunction, C: CostFunction> NeuralNetwork<T, C> {
+  fn random_vector(size: usize) -> Vec<f64>{
+    (0..size).map(|_index|{
+      rand::thread_rng().gen_range(0.01..0.99)
+    }).collect()
+  }
   pub fn new(layers_details: &[LayerDetails<T>], cost_function: C) -> NeuralNetwork<T, C> {
     assert!(
       layers_details.len() >= 2,
@@ -42,7 +46,7 @@ impl<T: ActivationFunction, C: CostFunction> NeuralNetwork<T, C> {
       let weights;
       let biases;
       if let Some(prev_layer) = prev_layer {
-        weights = vec![vec![1.0; prev_layer.borrow().size]; layer_details.layer_size];
+        weights = (0..layer_details.layer_size).map(|_|Self::random_vector(prev_layer.borrow().size)).collect();
         biases = vec![0.0; layer_details.layer_size];
       } else {
         weights = vec![];
@@ -79,10 +83,19 @@ impl<T: ActivationFunction, C: CostFunction> NeuralNetwork<T, C> {
   }
 
   pub fn back_propagate(&self, actual: &Vec<f64>, learning_rate: f64) {
-    let last_layer = self.layers.last().unwrap();
-    assert_eq!(actual.len(), last_layer.borrow().size);
+    let mut last_layer = self.layers.last().unwrap().borrow_mut();
+    assert_eq!(actual.len(), last_layer.size);
+    
+    let activations = last_layer.activations.as_ref().unwrap();
+    let cost_derivative = C::derivative(&activations, actual);
+    let activation_derivative = T::derivative(&activations);
+    let error = hadamard_product!(cost_derivative, activation_derivative);
+
+    let cost = C::cost(actual, activations.as_ref());
+    println!("cost: {}", cost);
+    // println!("cost derivation: {:?}", cost_derivative);
+
     last_layer
-      .borrow_mut()
-      .back_propagate::<C>(&actual, learning_rate);
+      .back_propagate::<C>(&error, learning_rate);
   }
 }

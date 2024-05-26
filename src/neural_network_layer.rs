@@ -4,10 +4,9 @@ use std::{cell::RefCell, rc::Rc};
 use crate::activation_functions::ActivationFunction;
 use crate::cost_functions::CostFunction;
 use crate::linear_algebra::{
-  add_matrices, add_vector, hadamard_product, matrix_dot_vector, scalar_multiply_matrix, scalar_multiply_vector, vector_dot_transposed_vector
+  add_matrices, add_vector, matrix_dot_vector, scalar_multiply_matrix, scalar_multiply_vector, transpose_matrix, vector_dot_transposed_vector
 };
 
-use crate::hadamard_product;
 // #[derive(Debug)]
 pub struct NeuralNetworkLayer<T: ActivationFunction> {
   pub biases: Vec<f64>,
@@ -34,9 +33,9 @@ impl<T: ActivationFunction> NeuralNetworkLayer<T> {
     // println!("{:?}",prev_values);
     // println!("matrix dot vector: {:?}",matrix_dot_vector(&self.weights, &prev_values));
     // println!("z: {:?}",z);
-    println!("activations: {:?}",activations);
+    // println!("activations: {:?}", activations);
 
-    if let Some(next_layer) = self.next_layer.as_mut(){
+    if let Some(next_layer) = self.next_layer.as_mut() {
       return next_layer.borrow_mut().forward_propagate(&activations);
     }
     return activations;
@@ -54,6 +53,9 @@ impl<T: ActivationFunction> NeuralNetworkLayer<T> {
         .as_ref()
         .unwrap(),
     );
+    
+    // println!("size: {}, weight_derivative: {:?}",self.size,weight_derivative);
+
     self.weights = add_matrices(
       &self.weights,
       &scalar_multiply_matrix(-learning_rate, &weight_derivative),
@@ -67,21 +69,24 @@ impl<T: ActivationFunction> NeuralNetworkLayer<T> {
     );
   }
 
-  pub fn back_propagate<C>(&mut self, actual: &Vec<f64>, learning_rate: f64)
+
+  pub fn back_propagate<C>(&mut self, error: &Vec<f64>, learning_rate: f64)
   where
     C: CostFunction,
   {
-    assert!(self.activations.is_some());
-    let activations = self.activations.as_mut().unwrap();
-    let cost_derivative = C::derivative(&activations, actual);
-    let activation_derivative = T::derivative(&activations);
-    let cost = C::cost(actual, activations.as_ref());
-    println!("cost: {}", cost);
-    // let error = hadamard_product(&[cost_derivative,activation_derivative]);
-    let error = hadamard_product!(cost_derivative, activation_derivative);
-    println!("{:?}", activation_derivative);
+    if self.prev_layer.is_none(){
+      return;
+    }
+
+    // println!("delta {:?}",error);
+
+    let next_error = matrix_dot_vector(&transpose_matrix(&self.weights), &error);
+
     Self::update_weights(self, &error, learning_rate);
     Self::update_biases(self, &error, learning_rate);
+
+    let prev_layer = self.prev_layer.as_ref().unwrap();
+    prev_layer.borrow_mut().back_propagate::<C>(&next_error, learning_rate);
   }
 }
 
@@ -108,6 +113,7 @@ impl<T: ActivationFunction> Debug for NeuralNetworkLayer<T> {
       .field("activation_function", &self.activation_function)
       .field("next_layer", &next_layer_ptr)
       .field("prev_layer", &prev_layer_ptr)
+      .field("activations",&self.activations)
       .finish()
   }
 }

@@ -17,15 +17,16 @@ impl CostFunction for MSE{
     let size = actual.len();
     let mut result = 0.0;
     for i in 0..size{
-      println!("{} {}",actual[i],predicted[i]);
+      // println!("{} {}",actual[i],predicted[i]);
       result+=(actual[i]-predicted[i]).powf(2.0);
     }
     result/=size as f64;
     return result;
   }
   fn derivative(values: &Vec<f64>,actual: &Vec<f64>) -> Vec<f64> {
+    assert_eq!(values.len(),actual.len());
     values.iter().zip(actual.iter()).map(|(value,actual)|{
-      -(actual-value)
+      (value-actual)/values.len() as f64
     }).collect()
   }
 }
