@@ -11,7 +11,7 @@ mod neural_network;
 mod neural_network_layer;
 fn main() {
   let learning_rate = 0.001;
-  let neural_network = NeuralNetwork::new(
+  let mut neural_network = NeuralNetwork::new(
     &[
       LayerDetails::new(2, activation_functions::Linear),
       LayerDetails::new(10, activation_functions::Linear),
@@ -19,17 +19,21 @@ fn main() {
     ],
     cost_functions::MSE,
   );
+
+  println!("{:#?}", neural_network);
+
   // let datas = vec![
   //   (vec![1.0,2.0],vec![3.0])
   // ]
   let mut datas = vec![];
-  for i in 1 .. 100{
-    for j in 1 .. 100{
+  for i in 1 .. 10{
+    for j in 1 .. 10{
       let i = i as f64;
       let j = j as f64;
       datas.push((vec![i,j],vec![i+j]));
     }
   }
+
   for (x,y) in &datas{
     let predicted = neural_network.forward_propagate(x);
     if predicted[0].is_nan(){
@@ -39,6 +43,7 @@ fn main() {
     // println!("{:?}", neural_network);
     neural_network.back_propagate(y, learning_rate);
   }
+  
   println!("{:#?}", neural_network);
 
   let test = vec![8.0,14.0];
