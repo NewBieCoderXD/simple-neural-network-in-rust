@@ -2,6 +2,7 @@ use crate::linear_algebra::{
   add_matrices, add_vector, matrix_dot_vector, scalar_multiply_matrix, scalar_multiply_vector,
   transpose_matrix, vector_dot_transposed_vector,
 };
+use crate::stat::mean_and_standard_deviation;
 use crate::{
   activation_functions::ActivationFunction, cost_functions::CostFunction, hadamard_product,
   layer_details::LayerDetails, neural_network_layer::NeuralNetworkLayer,
@@ -9,21 +10,14 @@ use crate::{
 use rand::Rng;
 use std::fmt::Debug;
 
+#[derive(Debug)]
 pub struct NeuralNetwork<T: ActivationFunction, C: CostFunction> {
   pub layers: Vec<NeuralNetworkLayer<T>>,
   cost_function: C,
-}
-
-impl<T: ActivationFunction, C: CostFunction> Debug for NeuralNetwork<T, C> {
-  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    f.debug_struct("NeuralNetwork")
-      .field(
-        "layers",
-        &self.layers.iter().collect::<Vec<&NeuralNetworkLayer<T>>>(),
-      )
-      .field("cost_function", &self.cost_function)
-      .finish()
-  }
+  x_mean: Option<Vec<f64>>,
+  x_sd: Option<Vec<f64>>,
+  y_mean: Option<Vec<f64>>,
+  y_sd: Option<Vec<f64>>,
 }
 
 impl<T: ActivationFunction, C: CostFunction> NeuralNetwork<T, C> {
@@ -47,6 +41,10 @@ impl<T: ActivationFunction, C: CostFunction> NeuralNetwork<T, C> {
     let mut network = NeuralNetwork {
       layers: vec![],
       cost_function: cost_function,
+      x_mean: None,
+      x_sd: None,
+      y_mean: None,
+      y_sd: None,
     };
 
     for (index, layer_details) in layers_details.iter().enumerate() {
@@ -83,20 +81,17 @@ impl<T: ActivationFunction, C: CostFunction> NeuralNetwork<T, C> {
   pub fn forward_propagate(&mut self, input: &Vec<f64>) -> Vec<f64> {
     assert_eq!(input.len(), self.layers[0].size);
     // let mut activations = input;
-    self.layers[0].activations=Some(input.clone());
+    self.layers[0].activations = Some(input.clone());
     for index in 1..self.layers.len() {
       let (left_splitted, right_splitted) = self.layers.split_at_mut(index);
       let curr_layer = &mut right_splitted[0];
       let prev_layer = &left_splitted[index - 1];
-      let activations= prev_layer.activations.as_ref().unwrap();
+      let activations = prev_layer.activations.as_ref().unwrap();
       let z_values = add_vector(
-        &matrix_dot_vector(
-          &curr_layer.weights,
-          &activations,
-        ),
+        &matrix_dot_vector(&curr_layer.weights, &activations),
         &curr_layer.biases,
       );
-      curr_layer.activations=Some(T::activate(&z_values));
+      curr_layer.activations = Some(T::activate(&z_values));
       curr_layer.z_values = Some(z_values.clone());
     }
     return T::activate(&self.layers.last().unwrap().z_values.clone().unwrap());
@@ -107,26 +102,115 @@ impl<T: ActivationFunction, C: CostFunction> NeuralNetwork<T, C> {
     assert_eq!(actual.len(), last_layer.size);
 
     let z_values = last_layer.z_values.as_ref().unwrap();
-    let activations = T::activate(z_values);
+    let activations = last_layer.activations.as_ref().unwrap();
     let cost_derivative = C::derivative(&activations, actual);
-    let cost = C::cost(actual, activations.as_ref());
     let activation_derivative = T::derivative(&z_values);
     let mut error = hadamard_product!(cost_derivative, activation_derivative);
+
+    let cost = C::cost(actual, activations.as_ref());
+    println!("cost: {}", cost);
+    println!("cost_derivative: {:?}", cost_derivative);
 
     for i in (1..self.layers.len()).rev() {
       let (left_splitted, right_splitted) = self.layers.split_at_mut(i);
       let curr_layer = &mut right_splitted[0];
       let left_layer = &left_splitted[i - 1];
 
-      // let z_values = curr_layer.z_values.clone().unwrap();
-
-      println!("cost: {}", cost);
-
       Self::back_propagate_weights(&error, curr_layer, left_layer, learning_rate);
       Self::back_propagate_biases(&error, curr_layer, learning_rate);
 
-      error = matrix_dot_vector(&transpose_matrix(&curr_layer.weights), &error);
+      if i > 1 {
+        error = hadamard_product!(
+          T::derivative(left_layer.z_values.as_ref().unwrap()),
+          matrix_dot_vector(&transpose_matrix(&curr_layer.weights), &error)
+        );
+      }
     }
+  }
+
+  pub fn train(&mut self, x: Vec<Vec<f64>>, y: Vec<Vec<f64>>, learning_rate: f64) {
+    let (x_mean, x_sd): (Vec<f64>, Vec<f64>) = x
+      .iter()
+      .map(|series| mean_and_standard_deviation(series))
+      .unzip();
+    let (y_mean, y_sd): (Vec<f64>, Vec<f64>) = y
+      .iter()
+      .map(|series| mean_and_standard_deviation(series))
+      .unzip();
+    self.x_mean = Some(x_mean);
+    self.x_sd = Some(x_sd);
+    self.y_mean = Some(y_mean);
+    self.y_sd = Some(y_sd);
+
+    println!("{:?}", self.x_mean);
+
+    for row in 0..x[0].len() {
+      let x_of_row = x.iter().map(|series| series[row]).collect::<Vec<f64>>();
+      let y_of_row = y.iter().map(|series| series[row]).collect::<Vec<f64>>();
+      let predicted = self.forward_propagate(&Self::vec_standard_scale(
+        &x_of_row,
+        &self.x_mean.as_ref().unwrap(),
+        &self.x_sd.as_ref().unwrap(),
+      ));
+      // if predicted[0].is_nan() {
+      //   break;
+      // }
+      let unscaled_y = Self::vec_standard_scale(
+        &y_of_row,
+        self.y_mean.as_ref().unwrap(),
+        self.y_sd.as_ref().unwrap(),
+      );
+      println!(
+        "x: {:?}, y: {:?}, predicted: {:?}",
+        x_of_row,
+        y_of_row,
+        Self::vec_standard_unscale(
+          &predicted,
+          self.y_mean.as_ref().unwrap(),
+          self.y_sd.as_ref().unwrap()
+        )
+      );
+      self.back_propagate(&unscaled_y, learning_rate);
+    }
+  }
+
+  pub fn predict(&mut self, x: Vec<f64>) -> Vec<f64> {
+    let predicted = self.forward_propagate(&Self::vec_standard_scale(
+      &x,
+      &self.x_mean.as_ref().unwrap(),
+      &self.x_sd.as_ref().unwrap(),
+    ));
+    return Self::vec_standard_unscale(
+      &predicted,
+      self.y_mean.as_ref().unwrap(),
+      self.y_sd.as_ref().unwrap(),
+    );
+  }
+
+  fn standard_scale(value: f64, mean: f64, sd: f64) -> f64 {
+    return (value - mean) / sd;
+  }
+
+  fn standard_unscale(value: f64, mean: f64, sd: f64) -> f64 {
+    return value * sd + mean;
+  }
+
+  fn vec_standard_scale(x: &Vec<f64>, mean: &Vec<f64>, sd: &Vec<f64>) -> Vec<f64> {
+    return x
+      .iter()
+      .zip(mean)
+      .zip(sd)
+      .map(|((&value, &mean), &sd)| Self::standard_scale(value, mean, sd))
+      .collect::<Vec<f64>>();
+  }
+
+  fn vec_standard_unscale(x: &Vec<f64>, mean: &Vec<f64>, sd: &Vec<f64>) -> Vec<f64> {
+    return x
+      .iter()
+      .zip(mean)
+      .zip(sd)
+      .map(|((&value, &mean), &sd)| Self::standard_unscale(value, mean, sd))
+      .collect::<Vec<f64>>();
   }
 
   fn back_propagate_weights(

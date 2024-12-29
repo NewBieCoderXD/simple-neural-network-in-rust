@@ -23,10 +23,10 @@ impl CostFunction for MSE{
     result/=size as f64;
     return result;
   }
-  fn derivative(values: &Vec<f64>,actual: &Vec<f64>) -> Vec<f64> {
-    assert_eq!(values.len(),actual.len());
-    values.iter().zip(actual.iter()).map(|(value,actual)|{
-      (value-actual)/values.len() as f64
+  fn derivative(activations: &Vec<f64>,actual: &Vec<f64>) -> Vec<f64> {
+    assert_eq!(activations.len(),actual.len());
+    activations.iter().zip(actual.iter()).map(|(activation,actual)|{
+      2.0*(activation-actual)/activations.len() as f64
     }).collect()
   }
 }
