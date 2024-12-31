@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Making a neural network from scratch</title>
-    <!-- <link rel="stylesheet" Zhref="./style.css"> -->
+    <!-- <link rel="stylesheet" href="./style.css"> -->
     <style>
+      @import url("https://fonts.cdnfonts.com/css/palatino-lt-black");
       /* blockquote {
         margin-top: 5px;
         margin-bottom: 5px;
@@ -22,10 +23,14 @@
         margin-top: 10px;
         margin-bottom: 10px;
       }
+      html {
+        font-family: "Palatino LT Light", sans-serif;
+      }
     </style>
     <script
-      type="text/javascript"
-      src="https://www.maths.nottingham.ac.uk/plp/pmadw/LaTeXMathML.js"
+      id="MathJax-script"
+      async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
     ></script>
   </head>
   <body>
@@ -59,29 +64,29 @@
       poor result. Let's represent this in mathematical terms <br />
       <ul style="margin: 0">
         <li>
-          $z_i^{[l]}$ means sum of signals multiplied by weights then added
+          \(z_i^{[l]}\) means sum of signals multiplied by weights then added
           bias<br />
-          vector/matrix form: $z^{[l]}$
+          vector/matrix form: \(z^{[l]}\)
         </li>
         <li>
-          $a_i^{[l]}$ means activation value of $i$-th neuron in $l$-th layer,
-          we get from applying<br />
-          vector/matrix form: $a^{[l]}$
+          \(a_i^{[l]}\) means activation value of \(i\)-th neuron in \(l\)-th
+          layer, we get from applying<br />
+          vector/matrix form: \(a^{[l]}\)
         </li>
         <li>
-          $W_{ij}^{[l]}$ means weight of connection of ith neuron in $(l-1)$ th
-          layer and $j$-th neuron in $l$-th layer<br />
-          vector/matrix form: $W^{[l]}$
+          \(W_{ij}^{[l]}\) means weight of connection of ith neuron in \((l-1)\)
+          th layer and \(j\)-th neuron in \(l\)-th layer<br />
+          vector/matrix form: \(W^{[l]}\)
         </li>
         <li>
-          $b_i^{[l]}$ means bias value of ith neuron in $l$-th layer<br />
-          vector/matrix form: $b^{[l]}$
+          \(b_i^{[l]}\) means bias value of ith neuron in \(l\)-th layer<br />
+          vector/matrix form: \(b^{[l]}\)
         </li>
-        <li>$g^{[l]}(x)$ means activation function of $l$-th layer</li>
-        <li>$L$ means number of layers(both input,hidden,output)</li>
-        <li>$\hat y$ or $a^{[L]}$ means predicted output</li>
+        <li>\(g^{[l]}(x)\) means activation function of \(l\)-th layer</li>
+        <li>\(L\) means number of layers(both input,hidden,output)</li>
+        <li>\(\hat y\) or \(a^{[L]}\) means predicted output</li>
       </ul>
-      <b>Note:</b> $i$-th neuron is counted from top to bottom, while $l$-th
+      <b>Note:</b> \(i\)-th neuron is counted from top to bottom, while \(l\)-th
       layer is counted from left to right.
 
       <hr />
@@ -93,22 +98,22 @@
       layer), where activations of output layer is predicted output<br />
       Making an equation, we get
       <blockquote>
-        $\displaystyle{z_i^{[l]}=\sum_{j} W_{ij}^{[l]} \cdot a_j^{[l-1]} +
-        b_i^{[l]}}$
+        \(\displaystyle{z_i^{[l]}=\sum_{j} W_{ij}^{[l]} \cdot a_j^{[l-1]} +
+        b_i^{[l]}}\)
       </blockquote>
       and
-      <blockquote>$a_i^{[l]}=g^{[l]}(z_i^{[l]})$</blockquote>
-      We are basically amplifying signals from $l-1$ layer by $W_ij$, sum it
+      <blockquote>\(a_i^{[l]}=g^{[l]}(z_i^{[l]})\)</blockquote>
+      We are basically amplifying signals from \(l-1\) layer by \(W_ij\), sum it
       then add bias to be a signal value for the right layer <br />
       To make things simpler for computers, let's generalize it to matrix
       notation. <br />
-      Let's say that removing $i$,$j$ from notation will make it a matrix(or a
-      vector). <br />
+      Let's say that removing \(i\),\(j\) from notation will make it a matrix(or
+      a vector). <br />
       <blockquote>
-        $\displaystyle{z^{[l]}=W^{[l]} \bullet a^{[l-1]} + b^{[l]}}$
+        \(\displaystyle{z^{[l]}=W^{[l]} \bullet a^{[l-1]} + b^{[l]}}\)
       </blockquote>
       and
-      <blockquote>$a^{[l]}=g^{[l]}(z^{[l]})$</blockquote>
+      <blockquote>\(a^{[l]}=g^{[l]}(z^{[l]})\)</blockquote>
 
       <hr />
 
@@ -123,7 +128,7 @@
       descent is that we want to minimize error.<br />
       To do that we can use calculus to find a local minima of error with
       respect to each parameter!<br />
-      Let's say error is function $J(x)$, we know that at local minima we will
+      Let's say error is function \(J(x)\), we know that at local minima we will
       have first-order derivative of 0 and second-order derivative of
       positive.<br />
       But currently the slope isn't 0, how do we move it towards local
@@ -132,35 +137,36 @@
       minima is 2<br />
 
       <blockquote>
-        $J^{\prime\prime}=\frac{d^2 J \left(x
-        \right)}{dx^2}=\frac{J_2^\prime-J_1^\prime}{x_2-x_1}$<br />
+        \(J^{\prime\prime}=\frac{d^2 J \left(x
+        \right)}{dx^2}=\frac{J_2^\prime-J_1^\prime}{x_2-x_1}\)<br />
       </blockquote>
-      We want $J_2^\prime$ to be $0$<br />
+      We want \(J_2^\prime\) to be \(0\)<br />
       <blockquote class="multiline">
-        $\frac{d^2
-        J\left(x\right)}{dx^2}=\frac{0-\frac{dJ\left(x\right)}{dx}}{x_2-x_1}$<br />
-        $\left(x_2-x_1 \right) \frac{d^2 J \left( x \right)}{dx^2}=-\frac{dJ
-        \left(x \right)}{dx}$<br />
-        $x_2-x_1=-\frac{dJ \left(x \right)}{dx} \frac{dx^2}{d^2 J \left(x
-        \right)}$<br />
-        $x_2=x_1-\frac{dJ \left(x \right)}{dx} \cdot
-        \frac{1}{J^{\prime\prime}}$<br />
+        \(\frac{d^2
+        J\left(x\right)}{dx^2}=\frac{0-\frac{dJ\left(x\right)}{dx}}{x_2-x_1}\)<br />
+        \(\left(x_2-x_1 \right) \frac{d^2 J \left( x \right)}{dx^2}=-\frac{dJ
+        \left(x \right)}{dx}\)<br />
+        \(x_2-x_1=-\frac{dJ \left(x \right)}{dx} \frac{dx^2}{d^2 J \left(x
+        \right)}\)<br />
+        \(x_2=x_1-\frac{dJ \left(x \right)}{dx} \cdot
+        \frac{1}{J^{\prime\prime}}\)<br />
       </blockquote>
-      or $x_{new}=x_{old}-\frac{dJ \left(x \right)}{dx} \cdot
-      \frac{1}{J^{\prime\prime}}$
+      or \(x_{new}=x_{old}-\frac{dJ \left(x \right)}{dx} \cdot
+      \frac{1}{J^{\prime\prime}}\)
       <br />
       Then we will get closer to local minima. This is essentially doing Newton
       method on first-order derivative.<br />
-      But what is $J^{\prime\prime}$? We know that it must be positive, but what
-      value?<br />
+      But what is \(J^{\prime\prime}\)? We know that it must be positive, but
+      what value?<br />
       We actually can choose if we want to moving towards minima fastly or
       slowly.<br />
-      If $J^{\prime\prime}$ is high, $|x_2-x_1|$ is small, and vice versa.<br />
+      If \(J^{\prime\prime}\) is high, \(|x_2-x_1|\) is small, and vice
+      versa.<br />
       But that seems counter-intuitive, let's define
-      $\alpha=\frac{1}{J^{\prime\prime}}$ and call it learning rate. If $\alpha$
-      is high, $|x_2-x_1|$ is high, and vice versa!<br />
-      (Usually learning rate is around $0.0001$ to $0.1$)<br />
-      So the equation becomes $x_{new}=x_{old}-\alpha \cdot \frac{dJ(x)}{dx}$
+      \(\alpha=\frac{1}{J^{\prime\prime}}\) and call it learning rate. If
+      \(\alpha\) is high, \(|x_2-x_1|\) is high, and vice versa!<br />
+      (Usually learning rate is around \(0.0001\) to \(0.1\))<br />
+      So the equation becomes \(x_{new}=x_{old}-\alpha \cdot \frac{dJ(x)}{dx}\)
 
       <hr />
 
@@ -169,74 +175,115 @@
       layer, from right to left(propagate back) by using gradient descent.<br />
       Writing gradient descent of weights and biases into equations, we get
       <blockquote>
-        $W_{i,j (new)}^{[l]}=W_{i,j (old)}^{[l]}-\alpha \cdot \frac{\partial
-        J(y,\hat y)}{\partial W_{i,j}^{[l]}}$
+        \(W_{i,j (new)}^{[l]}=W_{i,j (old)}^{[l]}-\alpha \cdot \frac{\partial
+        J(y,\hat y)}{\partial W_{i,j}^{[l]}}\)
       </blockquote>
       <blockquote>
-        $b_{i (new)}^{[l]}=b_{i (old)}^{[l]}-\alpha \cdot \frac{\partial
-        J(y,\hat y)}{\partial b_i^{[l]}}$
+        \(b_{i (new)}^{[l]}=b_{i (old)}^{[l]}-\alpha \cdot \frac{\partial
+        J(y,\hat y)}{\partial b_i^{[l]}}\)
       </blockquote>
 
-      We need to find weight gradient($\frac{dJ(y,\hat y)}{dW_{i,j}^{[l]}}$) and
-      bias gradient($\frac{\partial J(y,\hat y)}{\partial b_i^{[l]}}$).
+      We need to find weight gradient(\(\frac{dJ(y,\hat y)}{dW_{i,j}^{[l]}}\))
+      and bias gradient(\(\frac{\partial J(y,\hat y)}{\partial b_i^{[l]}}\)).
 
       <h4>• Weight Gradient</h4>
-      using chain rule, we get $\frac{\partial J(y,\hat y)}{\partial
+      using chain rule, we get \(\frac{\partial J(y,\hat y)}{\partial
       W_{i,j}^{[l]}}=\frac{\partial J(y,\hat y)}{\partial z_{j}^{[l]}}
-      \frac{\partial z_{j}^{[l]}}{\partial W_{i,j}^{[l]}}$ <br />
-      Why? because $W_{i,j}^{[l]}$ only affects $z_{j}^{[l]}$ <br />
-      We know that $\frac{\partial z_{j}^{[l]}}{\partial
-      W_{i,j}^{[l]}}=a_j^{[l-1]}$ <br />
+      \frac{\partial z_{j}^{[l]}}{\partial W_{i,j}^{[l]}}\) <br />
+      Why? because \(W_{i,j}^{[l]}\) only affects \(z_{j}^{[l]}\) <br />
+      We know that \(\frac{\partial z_{j}^{[l]}}{\partial
+      W_{i,j}^{[l]}}=a_j^{[l-1]}\) <br />
       <blockquote>
-        $\frac{\partial J(y,\hat y)}{\partial W_{i,j}^{[l]}}=\frac{\partial
-        J(y,\hat y)}{\partial z_{j}^{[l]}} a_j^{[l-1]}$
+        \(\frac{\partial J(y,\hat y)}{\partial W_{i,j}^{[l]}}=\frac{\partial
+        J(y,\hat y)}{\partial z_{j}^{[l]}} a_j^{[l-1]}\)
       </blockquote>
 
       <h4>• Bias Gradient</h4>
-      using chain rule, we get $\frac{\partial J(y,\hat y)}{\partial
+      using chain rule, we get \(\frac{\partial J(y,\hat y)}{\partial
       b_i^{[l]}}=\frac{\partial J(y,\hat y)}{\partial z_{j}^{[l]}}
-      \frac{\partial z_{j}^{[l]}}{\partial b_{i}^{[l]}}$ <br />
-      Why? because $b_{i,j}^{[l]}$ only affects $z_{j}^{[l]}$ <br />
-      We know that $\frac{\partial z_{j}^{[l]}}{\partial b_{i}^{[l]}}=1$ <br />
+      \frac{\partial z_{j}^{[l]}}{\partial b_{i}^{[l]}}\) <br />
+      Why? because \(b_{i,j}^{[l]}\) only affects \(z_{j}^{[l]}\) <br />
+      We know that \(\frac{\partial z_{j}^{[l]}}{\partial b_{i}^{[l]}}=1\)
+      <br />
       <blockquote>
-        $\frac{\partial J(y,\hat y)}{\partial W_{i,j}^{[l]}}=\frac{\partial
-        J(y,\hat y)}{\partial z_{j}^{[l]}}$
+        \(\frac{\partial J(y,\hat y)}{\partial W_{i,j}^{[l]}}=\frac{\partial
+        J(y,\hat y)}{\partial z_{j}^{[l]}}\)
       </blockquote>
 
       We can see that weight gradient and bias gradient share the same term,
-      let's name it $\delta_j^{[l]}$ (delta), it's basically error of $j$-th
-      neuron in $l$-th layer.<br />
+      let's name it \(\delta_j^{[l]}\) (delta), it's basically error of \(j\)-th
+      neuron in \(l\)-th layer.<br />
       <blockquote>
-        $\delta_j^{[l]} = \frac{\partial J(y,\hat y)}{\partial z_{j}^{[l]}}$
+        \(\delta_j^{[l]} = \frac{\partial J(y,\hat y)}{\partial z_{j}^{[l]}}\)
       </blockquote>
       Or vector form
       <blockquote>
-        $\delta^{[l]} = \frac{\partial J(y,\hat y)}{\partial z^{[l]}}$
+        \(\delta^{[l]} = \frac{\partial J(y,\hat y)}{\partial z^{[l]}}\)
       </blockquote>
 
-      <h4>• Error of $L$-th Level</h4>
-      We need to use chain rule to introduce $a^{[L]}$ because it is direct
+      <h4>• Error of \(L\)-th Level</h4>
+      We need to use chain rule to introduce \(a^{[L]}\) because it is direct
       argument of cost functions.
       <blockquote class="multiline">
-        $\frac{\partial J(y,\hat y)}{\partial z_{j}^{[L]}}=\frac{\partial
-        J(y,\hat y)}{\partial a_{j}^{[L]}} \cdot \frac{\partial a_{j}^{[L]}}{\partial
-        z_{j}^{[L]}}$<br />
-        $\frac{\partial J(y,\hat y)}{\partial z_{j}^{[L]}}=\frac{\partial
-        J(y,\hat y)}{\partial a_{j}^{[L]}} \cdot g^{\prime [L]} \left(z_{j}^{[L]} \right)$<br />
-        $\frac{\partial J(y,\hat y)}{\partial z_{j}^{[L]}}=\frac{\partial
-        J(y,\hat y)}{\partial a_{j}^{[L]}} \cdot g^{\prime [L]} \left(z_{j}^{[L]} \right)$
+        \(\frac{\partial J(y,\hat y)}{\partial z_{j}^{[L]}}=\frac{\partial
+        J(y,\hat y)}{\partial a_{j}^{[L]}} \cdot \frac{\partial
+        a_{j}^{[L]}}{\partial z_{j}^{[L]}}\)<br />
+        \(\frac{\partial J(y,\hat y)}{\partial z_{j}^{[L]}}=\frac{\partial
+        J(y,\hat y)}{\partial a_{j}^{[L]}} \cdot g^{\prime [L]}
+        \bigl(z_{j}^{[L]} \bigr)\)<br />
+        \(\frac{\partial J(y,\hat y)}{\partial z_{j}^{[L]}}=\frac{\partial
+        J(y,\hat y)}{\partial a_{j}^{[L]}} \cdot g^{\prime [L]}
+        \bigl(z_{j}^{[L]} \bigr)\)
       </blockquote>
       vector form:<br />
       <blockquote>
-        $\frac{\partial J(y,\hat y)}{\partial z^{[L]}}=\frac{\partial J(y,\hat
-        y)}{\partial a^{[L]}} \cdot g^{\prime [L]} \left(z^{[L]} \right)$
+        \(\frac{\partial J(y,\hat y)}{\partial z^{[L]}}=\frac{\partial J(y,\hat
+        y)}{\partial a^{[L]}} \cdot g^{\prime [L]} \bigl(z^{[L]} \bigr)\)
       </blockquote>
       or
       <blockquote>
-        $\nabla_{z^{[L]}} J(y,\hat y)=\nabla_{a^{[L]}} J(y,\hat
-        y) \cdot g^{\prime [L]} \left(z^{[L]} \right)$
+        \(\nabla_{z^{[L]}} J(y,\hat y)=\nabla_{a^{[L]}} J(y,\hat y) \cdot
+        g^{\prime [L]} \bigl(z^{[L]} \bigr)\)
       </blockquote>
-      
+
+      <h4>• Error of \(l\)-th Level</h4>
+      <!-- prettier-ignore -->
+      <blockquote>
+        \[ \begin{align} 
+        \delta_i^{[l]} &= \frac{\partial J(y,\hat y)}{\partial z_i^{[l]}} \\ 
+        &= \sum_{j} \frac{\partial J(y,\hat y)}{\partial
+        z_j^{[l+1]}} \cdot \frac{\partial z_j^{[l+1]}}{\partial z_i^{[l]}} \\ 
+        &= \sum_{j} \delta_j^{[l+1]} \cdot \frac{\partial \left( \sum_k W_{kj}^{[l+1]} \cdot a_k^{[l]} + b_j^{[l+1]} \right)}{\partial z_i^{[l]}} \\ 
+        &= \sum_{j} \delta_j^{[l+1]} \cdot \frac{\partial \left( \sum_k W_{kj}^{[l+1]} \cdot a_k^{[l]} + b_j^{[l+1]} \right)}{\partial a_i^{[l]}} \cdot \frac{\partial a_i^{[l]}}{\partial z_i^{[l]}} \\
+        &= \sum_{j} \delta_j^{[l+1]} \cdot W_{ij}^{[l+1]} \cdot g^{\prime [l]} \bigl(z_i^{[l]} \bigr) \\
+        &=\begin{bmatrix}
+          g^{\prime [l]} \bigl(z_0^{[l]} \bigr) \\
+          g^{\prime [l]} \bigl(z_1^{[l]} \bigr) \\
+          ...
+        \end{bmatrix} \odot
+        \begin{bmatrix}
+          \sum_{j} \delta_j^{[l+1]} \cdot W_{0,j}^{[l+1]} \\
+          \sum_{j} \delta_j^{[l+1]} \cdot W_{1,j}^{[l+1]} \\
+          ...
+        \end{bmatrix} \\
+        &=\begin{bmatrix}
+          g^{\prime [l]} \bigl(z_0^{[l]} \bigr) \\
+          g^{\prime [l]} \bigl(z_1^{[l]} \bigr) \\
+          ...
+        \end{bmatrix} \odot
+        \begin{bmatrix}
+          W_{0,0}^{[l+1]} &  W_{0,1}^{[l+1]} & ... \\
+          W_{1,0}^{[l+1]} &  W_{1,1}^{[l+1]} & ... \\
+          ... & ... & ...
+        \end{bmatrix} \cdot
+        \begin{bmatrix}
+          \delta_j^{[l+1]} \\
+          \delta_j^{[l+1]} \\
+          ...
+        \end{bmatrix} \\
+        &=g^{\prime [l]} \bigl(z^{[l]} \bigr) \odot \left (W^{[l+1]} \right)^T \cdot \delta^{[l+1]}
+        \end{align} \]
+      </blockquote>
     </main>
   </body>
 </html>
