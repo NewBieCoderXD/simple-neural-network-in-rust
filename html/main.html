@@ -7,9 +7,20 @@
     <title>Making a neural network from scratch</title>
     <!-- <link rel="stylesheet" Zhref="./style.css"> -->
     <style>
-      blockquote {
+      /* blockquote {
         margin-top: 5px;
         margin-bottom: 5px;
+      } */
+      .multiline {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+      hr {
+        background-color: blue;
+        height: 3px;
+        margin-top: 10px;
+        margin-bottom: 10px;
       }
     </style>
     <script
@@ -19,7 +30,14 @@
   </head>
   <body>
     <main>
-      <h1>What is a neural network?</h1>
+      <h1>Math Explanation for Simple Neural Network</h1>
+      <h2>Table of contents</h2>
+      <ol>
+        <li><a href="#neural-network">What is a neural network?</a></li>
+        <li><a href="#forward-propagation">Forward Propagation</a></li>
+        <li><a href="#gradient-descent">Gradient Descent</a></li>
+      </ol>
+      <h2 id="neural-network">What is a neural network?</h2>
       A neural network is a model of how neurons work. Each layer of the network
       contains neurons, these neurons are connected to every neuron in its
       adjacent layer. <br />
@@ -33,7 +51,7 @@
       which only affects a connection of neurons <br />
       Bias is like intercept of linear regression, not adjusting it will lead to
       poor result. Let's represent this in mathematical terms <br />
-      <ul style="margin:0">
+      <ul style="margin: 0">
         <li>
           $z_i^{[l]}$ means sum of signals multiplied by weights then added bias
         </li>
@@ -50,7 +68,10 @@
       </ul>
       <b>Note:</b> $i$-th neuron is counted from top to bottom, while $l$-th
       layer is counted from left to right.
-      <h1>Forward Propagation</h1>
+
+      <hr />
+
+      <h2 id="forward-propagation">Forward Propagation</h2>
       Process of propagating input as a signal to get output. <br />
       When we predict output, we take input as a signal to the first layer(input
       layer), then propagate through hidden layers then the last layer(output
@@ -73,8 +94,50 @@
       </blockquote>
       and
       <blockquote>$a^{[l]}=g^{[l]}(z^{[l]})$</blockquote>
-    </main>
 
-    <!-- <script src="index.js"></script> -->
+      <hr />
+
+      <h2 id="gradient-descent">Gradient Descent</h2>
+      We have our model that is basically auto regression, a model that can fits
+      to almost any functions. But how do we train it?<br />
+      The most popular way is to use gradient descent. The heart of gradient
+      descent is that we want to minimize error.<br />
+      To do that we can use calculus to find a local minima of error with
+      respect to each parameter!<br />
+      Let's say error is function $J(x)$, we know that at local minima we will
+      have first-order derivative of 0 and second-order derivative of
+      positive.<br />
+      But currently the slope isn't 0, how do we move it towards local
+      minima?<br />
+      Suppose current point is 1, while a point we move to be closer to local
+      minima is 2<br />
+
+      <blockquote>
+        $J"=\frac{d^2 J \left(x \right)}{dx^2}=\frac{J'_2-J'_1}{x_2-x_1}$<br />
+      </blockquote>
+      We want $J'_2$ to be $0$<br />
+      <blockquote class="multiline">
+        $\frac{d^2
+        J\left(x\right)}{dx^2}=\frac{0-\frac{dJ\left(x\right)}{dx}}{x_2-x_1}$<br />
+        $\left(x_2-x_1 \right) \frac{d^2 J \left( x \right)}{dx^2}=-\frac{dJ
+        \left(x \right)}{dx}$<br />
+        $x_2-x_1=-\frac{dJ \left(x \right)}{dx} \frac{dx^2}{d^2 J \left(x
+        \right)}$<br />
+        $x_2=x_1-\frac{dJ \left(x \right)}{dx} \cdot \frac{1}{J"}$<br />
+      </blockquote>
+      or $x_{new}=x_{old}-\frac{dJ \left(x \right)}{dx} \cdot \frac{1}{J"}$
+      <br />
+      Then we will get closer to local minima. This is essentially doing Newton
+      method on first-order derivative.<br />
+      But what is $J"$? We know that it must be positive, but what value?<br />
+      We actually can choose if we want to moving towards minima fastly or
+      slowly.<br />
+      If $J"$ is high, $|x_2-x_1|$ is small, and vice versa.<br />
+      But that seems counter-intuitive, let's define $\alpha=\frac{1}{J"}$ and
+      call it learning rate. If $\alpha$ is high, $|x_2-x_1|$ is high, and vice
+      versa!<br />
+      Usually learning rate is around $0.0001$ to $0.1$.<br />
+      So the equation becomes $x_{new}=x_{old}-\alpha \cdot \frac{dJ(x)}{dx}$
+    </main>
   </body>
 </html>
