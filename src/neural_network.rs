@@ -9,11 +9,12 @@ use crate::{
 };
 use rand::Rng;
 use std::fmt::Debug;
+use std::marker::PhantomData;
 
 #[derive(Debug)]
 pub struct NeuralNetwork<T: ActivationFunction, C: CostFunction> {
   pub layers: Vec<NeuralNetworkLayer<T>>,
-  cost_function: C,
+  phantom: PhantomData<C>,
   x_mean: Option<Vec<f64>>,
   x_sd: Option<Vec<f64>>,
   y_mean: Option<Vec<f64>>,
@@ -40,7 +41,7 @@ impl<T: ActivationFunction, C: CostFunction> NeuralNetwork<T, C> {
 
     let mut network = NeuralNetwork {
       layers: vec![],
-      cost_function: cost_function,
+      phantom: Default::default(),
       x_mean: None,
       x_sd: None,
       y_mean: None,
@@ -107,10 +108,6 @@ impl<T: ActivationFunction, C: CostFunction> NeuralNetwork<T, C> {
     let activation_derivative = T::derivative(&z_values);
     let mut error = hadamard_product!(cost_derivative, activation_derivative);
 
-    let cost = C::cost(actual, activations.as_ref());
-    println!("cost: {}", cost);
-    println!("cost_derivative: {:?}", cost_derivative);
-
     for i in (1..self.layers.len()).rev() {
       let (left_splitted, right_splitted) = self.layers.split_at_mut(i);
       let curr_layer = &mut right_splitted[0];
@@ -142,8 +139,6 @@ impl<T: ActivationFunction, C: CostFunction> NeuralNetwork<T, C> {
     self.y_mean = Some(y_mean);
     self.y_sd = Some(y_sd);
 
-    println!("{:?}", self.x_mean);
-
     for row in 0..x[0].len() {
       let x_of_row = x.iter().map(|series| series[row]).collect::<Vec<f64>>();
       let y_of_row = y.iter().map(|series| series[row]).collect::<Vec<f64>>();
@@ -152,29 +147,35 @@ impl<T: ActivationFunction, C: CostFunction> NeuralNetwork<T, C> {
         &self.x_mean.as_ref().unwrap(),
         &self.x_sd.as_ref().unwrap(),
       ));
+
       // if predicted[0].is_nan() {
       //   break;
       // }
-      let unscaled_y = Self::vec_standard_scale(
+
+      let scaled_y = Self::vec_standard_scale(
         &y_of_row,
         self.y_mean.as_ref().unwrap(),
         self.y_sd.as_ref().unwrap(),
       );
-      println!(
-        "x: {:?}, y: {:?}, predicted: {:?}",
-        x_of_row,
-        y_of_row,
-        Self::vec_standard_unscale(
-          &predicted,
-          self.y_mean.as_ref().unwrap(),
-          self.y_sd.as_ref().unwrap()
-        )
-      );
-      self.back_propagate(&unscaled_y, learning_rate);
+      if row % 1000 == 0 {
+        let cost = C::cost(&scaled_y, &predicted);
+        println!(
+          "x: {:?}, y: {:?}, predicted: {:?}, cost: {}",
+          x_of_row,
+          y_of_row,
+          Self::vec_standard_unscale(
+            &predicted,
+            self.y_mean.as_ref().unwrap(),
+            self.y_sd.as_ref().unwrap()
+          ),
+          cost
+        );
+      }
+      self.back_propagate(&scaled_y, learning_rate);
     }
   }
 
-  pub fn predict(&mut self, x: Vec<f64>) -> Vec<f64> {
+  pub fn predict(&mut self, x: &Vec<f64>) -> Vec<f64> {
     let predicted = self.forward_propagate(&Self::vec_standard_scale(
       &x,
       &self.x_mean.as_ref().unwrap(),
@@ -237,5 +238,9 @@ impl<T: ActivationFunction, C: CostFunction> NeuralNetwork<T, C> {
       &curr_layer.biases,
       &scalar_multiply_vector(-learning_rate, &error),
     );
+  }
+
+  pub fn calculate_error(&self, actual: &Vec<f64>, predicted: &Vec<f64>) -> f64 {
+    return C::cost(actual, predicted);
   }
 }
