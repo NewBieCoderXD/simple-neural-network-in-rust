@@ -31,11 +31,17 @@
   <body>
     <main>
       <h1>Math Explanation for Simple Neural Network</h1>
+      By <a href="https://github.com/NewBieCoderXD">NewBieCoderXD</a>, repo:
+      <a href="https://github.com/NewBieCoderXD/simple-neural-network-in-rust"
+        >https://github.com/NewBieCoderXD/simple-neural-network-in-rust</a
+      >
       <h2>Table of contents</h2>
       <ol>
         <li><a href="#neural-network">What is a neural network?</a></li>
         <li><a href="#forward-propagation">Forward Propagation</a></li>
+        <li><a href="#cost-function">Cost Function</a></li>
         <li><a href="#gradient-descent">Gradient Descent</a></li>
+        <li><a href="#back-propagation">Back Propagation</a></li>
       </ol>
       <h2 id="neural-network">What is a neural network?</h2>
       A neural network is a model of how neurons work. Each layer of the network
@@ -53,18 +59,27 @@
       poor result. Let's represent this in mathematical terms <br />
       <ul style="margin: 0">
         <li>
-          $z_i^{[l]}$ means sum of signals multiplied by weights then added bias
+          $z_i^{[l]}$ means sum of signals multiplied by weights then added
+          bias<br />
+          vector/matrix form: $z^{[l]}$
         </li>
         <li>
           $a_i^{[l]}$ means activation value of $i$-th neuron in $l$-th layer,
-          we get from applying
+          we get from applying<br />
+          vector/matrix form: $a^{[l]}$
         </li>
         <li>
-          $w_ij^{[l]}$ means weight of connection of ith neuron in $(l-1)$ th
-          layer and $j$-th neuron in $l$-th layer
+          $W_{ij}^{[l]}$ means weight of connection of ith neuron in $(l-1)$ th
+          layer and $j$-th neuron in $l$-th layer<br />
+          vector/matrix form: $W^{[l]}$
         </li>
-        <li>$b_i^{[l]}$ means bias value of ith neuron in $l$-th layer</li>
+        <li>
+          $b_i^{[l]}$ means bias value of ith neuron in $l$-th layer<br />
+          vector/matrix form: $b^{[l]}$
+        </li>
         <li>$g^{[l]}(x)$ means activation function of $l$-th layer</li>
+        <li>$L$ means number of layers(both input,hidden,output)</li>
+        <li>$\hat y$ or $a^{[L]}$ means predicted output</li>
       </ul>
       <b>Note:</b> $i$-th neuron is counted from top to bottom, while $l$-th
       layer is counted from left to right.
@@ -97,6 +112,10 @@
 
       <hr />
 
+      <h2 id="cost-function">Cost Function</h2>
+
+      <hr />
+
       <h2 id="gradient-descent">Gradient Descent</h2>
       We have our model that is basically auto regression, a model that can fits
       to almost any functions. But how do we train it?<br />
@@ -113,9 +132,10 @@
       minima is 2<br />
 
       <blockquote>
-        $J"=\frac{d^2 J \left(x \right)}{dx^2}=\frac{J'_2-J'_1}{x_2-x_1}$<br />
+        $J^{\prime\prime}=\frac{d^2 J \left(x
+        \right)}{dx^2}=\frac{J_2^\prime-J_1^\prime}{x_2-x_1}$<br />
       </blockquote>
-      We want $J'_2$ to be $0$<br />
+      We want $J_2^\prime$ to be $0$<br />
       <blockquote class="multiline">
         $\frac{d^2
         J\left(x\right)}{dx^2}=\frac{0-\frac{dJ\left(x\right)}{dx}}{x_2-x_1}$<br />
@@ -123,21 +143,100 @@
         \left(x \right)}{dx}$<br />
         $x_2-x_1=-\frac{dJ \left(x \right)}{dx} \frac{dx^2}{d^2 J \left(x
         \right)}$<br />
-        $x_2=x_1-\frac{dJ \left(x \right)}{dx} \cdot \frac{1}{J"}$<br />
+        $x_2=x_1-\frac{dJ \left(x \right)}{dx} \cdot
+        \frac{1}{J^{\prime\prime}}$<br />
       </blockquote>
-      or $x_{new}=x_{old}-\frac{dJ \left(x \right)}{dx} \cdot \frac{1}{J"}$
+      or $x_{new}=x_{old}-\frac{dJ \left(x \right)}{dx} \cdot
+      \frac{1}{J^{\prime\prime}}$
       <br />
       Then we will get closer to local minima. This is essentially doing Newton
       method on first-order derivative.<br />
-      But what is $J"$? We know that it must be positive, but what value?<br />
+      But what is $J^{\prime\prime}$? We know that it must be positive, but what
+      value?<br />
       We actually can choose if we want to moving towards minima fastly or
       slowly.<br />
-      If $J"$ is high, $|x_2-x_1|$ is small, and vice versa.<br />
-      But that seems counter-intuitive, let's define $\alpha=\frac{1}{J"}$ and
-      call it learning rate. If $\alpha$ is high, $|x_2-x_1|$ is high, and vice
-      versa!<br />
-      Usually learning rate is around $0.0001$ to $0.1$.<br />
+      If $J^{\prime\prime}$ is high, $|x_2-x_1|$ is small, and vice versa.<br />
+      But that seems counter-intuitive, let's define
+      $\alpha=\frac{1}{J^{\prime\prime}}$ and call it learning rate. If $\alpha$
+      is high, $|x_2-x_1|$ is high, and vice versa!<br />
+      (Usually learning rate is around $0.0001$ to $0.1$)<br />
       So the equation becomes $x_{new}=x_{old}-\alpha \cdot \frac{dJ(x)}{dx}$
+
+      <hr />
+
+      <h2 id="back-propagation">Back Propagation</h2>
+      Back propagation is a process of adjusting weights and biases, layer by
+      layer, from right to left(propagate back) by using gradient descent.<br />
+      Writing gradient descent of weights and biases into equations, we get
+      <blockquote>
+        $W_{i,j (new)}^{[l]}=W_{i,j (old)}^{[l]}-\alpha \cdot \frac{\partial
+        J(y,\hat y)}{\partial W_{i,j}^{[l]}}$
+      </blockquote>
+      <blockquote>
+        $b_{i (new)}^{[l]}=b_{i (old)}^{[l]}-\alpha \cdot \frac{\partial
+        J(y,\hat y)}{\partial b_i^{[l]}}$
+      </blockquote>
+
+      We need to find weight gradient($\frac{dJ(y,\hat y)}{dW_{i,j}^{[l]}}$) and
+      bias gradient($\frac{\partial J(y,\hat y)}{\partial b_i^{[l]}}$).
+
+      <h4>• Weight Gradient</h4>
+      using chain rule, we get $\frac{\partial J(y,\hat y)}{\partial
+      W_{i,j}^{[l]}}=\frac{\partial J(y,\hat y)}{\partial z_{j}^{[l]}}
+      \frac{\partial z_{j}^{[l]}}{\partial W_{i,j}^{[l]}}$ <br />
+      Why? because $W_{i,j}^{[l]}$ only affects $z_{j}^{[l]}$ <br />
+      We know that $\frac{\partial z_{j}^{[l]}}{\partial
+      W_{i,j}^{[l]}}=a_j^{[l-1]}$ <br />
+      <blockquote>
+        $\frac{\partial J(y,\hat y)}{\partial W_{i,j}^{[l]}}=\frac{\partial
+        J(y,\hat y)}{\partial z_{j}^{[l]}} a_j^{[l-1]}$
+      </blockquote>
+
+      <h4>• Bias Gradient</h4>
+      using chain rule, we get $\frac{\partial J(y,\hat y)}{\partial
+      b_i^{[l]}}=\frac{\partial J(y,\hat y)}{\partial z_{j}^{[l]}}
+      \frac{\partial z_{j}^{[l]}}{\partial b_{i}^{[l]}}$ <br />
+      Why? because $b_{i,j}^{[l]}$ only affects $z_{j}^{[l]}$ <br />
+      We know that $\frac{\partial z_{j}^{[l]}}{\partial b_{i}^{[l]}}=1$ <br />
+      <blockquote>
+        $\frac{\partial J(y,\hat y)}{\partial W_{i,j}^{[l]}}=\frac{\partial
+        J(y,\hat y)}{\partial z_{j}^{[l]}}$
+      </blockquote>
+
+      We can see that weight gradient and bias gradient share the same term,
+      let's name it $\delta_j^{[l]}$ (delta), it's basically error of $j$-th
+      neuron in $l$-th layer.<br />
+      <blockquote>
+        $\delta_j^{[l]} = \frac{\partial J(y,\hat y)}{\partial z_{j}^{[l]}}$
+      </blockquote>
+      Or vector form
+      <blockquote>
+        $\delta^{[l]} = \frac{\partial J(y,\hat y)}{\partial z^{[l]}}$
+      </blockquote>
+
+      <h4>• Error of $L$-th Level</h4>
+      We need to use chain rule to introduce $a^{[L]}$ because it is direct
+      argument of cost functions.
+      <blockquote class="multiline">
+        $\frac{\partial J(y,\hat y)}{\partial z_{j}^{[L]}}=\frac{\partial
+        J(y,\hat y)}{\partial a_{j}^{[L]}} \cdot \frac{\partial a_{j}^{[L]}}{\partial
+        z_{j}^{[L]}}$<br />
+        $\frac{\partial J(y,\hat y)}{\partial z_{j}^{[L]}}=\frac{\partial
+        J(y,\hat y)}{\partial a_{j}^{[L]}} \cdot g^{\prime [L]} \left(z_{j}^{[L]} \right)$<br />
+        $\frac{\partial J(y,\hat y)}{\partial z_{j}^{[L]}}=\frac{\partial
+        J(y,\hat y)}{\partial a_{j}^{[L]}} \cdot g^{\prime [L]} \left(z_{j}^{[L]} \right)$
+      </blockquote>
+      vector form:<br />
+      <blockquote>
+        $\frac{\partial J(y,\hat y)}{\partial z^{[L]}}=\frac{\partial J(y,\hat
+        y)}{\partial a^{[L]}} \cdot g^{\prime [L]} \left(z^{[L]} \right)$
+      </blockquote>
+      or
+      <blockquote>
+        $\nabla_{z^{[L]}} J(y,\hat y)=\nabla_{a^{[L]}} J(y,\hat
+        y) \cdot g^{\prime [L]} \left(z^{[L]} \right)$
+      </blockquote>
+      
     </main>
   </body>
 </html>
