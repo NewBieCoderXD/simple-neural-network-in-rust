@@ -1,27 +1,24 @@
 use crate::linear_algebra::{
-  add_matrices, add_vector, matrix_dot_vector, scalar_multiply_matrix, scalar_multiply_vector,
-  transpose_matrix, vector_dot_transposed_vector,
+  add_matrices, add_vector, get_row, matrix_dot_vector, minus_vector, powi_vector, scalar_multiply_matrix, scalar_multiply_vector, transpose_matrix, vector_dot_transposed_vector
 };
 use crate::stat::mean_and_standard_deviation;
-use crate::{
-  activation_functions::ActivationFunction, cost_functions::CostFunction, hadamard_product,
+use crate::{ cost_functions::CostFunction, hadamard_product,
   layer_details::LayerDetails, neural_network_layer::NeuralNetworkLayer,
 };
 use rand::Rng;
 use std::fmt::Debug;
-use std::marker::PhantomData;
 
 #[derive(Debug)]
-pub struct NeuralNetwork<T: ActivationFunction, C: CostFunction> {
-  pub layers: Vec<NeuralNetworkLayer<T>>,
-  phantom: PhantomData<C>,
+pub struct NeuralNetwork {
+  pub layers: Vec<NeuralNetworkLayer>,
+  cost_function: CostFunction,
   x_mean: Option<Vec<f64>>,
   x_sd: Option<Vec<f64>>,
   y_mean: Option<Vec<f64>>,
   y_sd: Option<Vec<f64>>,
 }
 
-impl<T: ActivationFunction, C: CostFunction> NeuralNetwork<T, C> {
+impl NeuralNetwork {
   // Xavier Initialization
   fn random_vector(previous_size: usize, current_size: usize) -> Vec<f64> {
     let x = f64::sqrt(6.0 / (current_size + previous_size) as f64);
@@ -29,19 +26,19 @@ impl<T: ActivationFunction, C: CostFunction> NeuralNetwork<T, C> {
       .map(|_index| rand::thread_rng().gen_range(-x..x))
       .collect()
   }
-  pub fn new(layers_details: &[LayerDetails<T>], cost_function: C) -> NeuralNetwork<T, C> {
+  pub fn new(layers_details: &[LayerDetails], cost_function: CostFunction) -> NeuralNetwork {
     assert!(
       layers_details.len() >= 2,
       "There are not enough layers to function({} layers), please make at least 2",
       layers_details.len()
     );
-    let mut layers: Vec<NeuralNetworkLayer<T>> = vec![];
+    let mut layers: Vec<NeuralNetworkLayer> = vec![];
     let layers_count = layers_details.len();
     layers.reserve(layers_count);
 
     let mut network = NeuralNetwork {
       layers: vec![],
-      phantom: Default::default(),
+      cost_function: cost_function,
       x_mean: None,
       x_sd: None,
       y_mean: None,
@@ -60,7 +57,7 @@ impl<T: ActivationFunction, C: CostFunction> NeuralNetwork<T, C> {
         weights = vec![];
         biases = vec![];
       }
-      let current_layer: NeuralNetworkLayer<T> = NeuralNetworkLayer {
+      let current_layer: NeuralNetworkLayer = NeuralNetworkLayer {
         biases,
         weights,
         size: layer_details.layer_size,
@@ -92,10 +89,10 @@ impl<T: ActivationFunction, C: CostFunction> NeuralNetwork<T, C> {
         &matrix_dot_vector(&curr_layer.weights, &activations),
         &curr_layer.biases,
       );
-      curr_layer.activations = Some(T::activate(&z_values));
+      curr_layer.activations = Some(curr_layer.activation_function.activate(&z_values));
       curr_layer.z_values = Some(z_values.clone());
     }
-    return T::activate(&self.layers.last().unwrap().z_values.clone().unwrap());
+    return self.layers.last().unwrap().activations.clone().unwrap();
   }
 
   pub fn back_propagate(&mut self, actual: &Vec<f64>, learning_rate: f64) {
@@ -104,8 +101,8 @@ impl<T: ActivationFunction, C: CostFunction> NeuralNetwork<T, C> {
 
     let z_values = last_layer.z_values.as_ref().unwrap();
     let activations = last_layer.activations.as_ref().unwrap();
-    let cost_derivative = C::derivative(&activations, actual);
-    let activation_derivative = T::derivative(&z_values);
+    let cost_derivative = self.cost_function.derivative(&activations, actual);
+    let activation_derivative = last_layer.activation_function.derivative(&z_values);
     let mut error = hadamard_product!(cost_derivative, activation_derivative);
 
     for i in (1..self.layers.len()).rev() {
@@ -118,7 +115,7 @@ impl<T: ActivationFunction, C: CostFunction> NeuralNetwork<T, C> {
 
       if i > 1 {
         error = hadamard_product!(
-          T::derivative(left_layer.z_values.as_ref().unwrap()),
+          left_layer.activation_function.derivative(left_layer.z_values.as_ref().unwrap()),
           matrix_dot_vector(&transpose_matrix(&curr_layer.weights), &error)
         );
       }
@@ -157,18 +154,19 @@ impl<T: ActivationFunction, C: CostFunction> NeuralNetwork<T, C> {
         self.y_mean.as_ref().unwrap(),
         self.y_sd.as_ref().unwrap(),
       );
+      let unscaled_predicted = Self::vec_standard_unscale(
+        &predicted,
+        self.y_mean.as_ref().unwrap(),
+        self.y_sd.as_ref().unwrap()
+      );
       if row % 1000 == 0 {
-        let cost = C::cost(&scaled_y, &predicted);
+        let error = self.calculate_error(&y_of_row, &unscaled_predicted);
         println!(
-          "x: {:?}, y: {:?}, predicted: {:?}, cost: {}",
+          "x: {:?}, y: {:?}, predicted: {:?}, error: {}",
           x_of_row,
           y_of_row,
-          Self::vec_standard_unscale(
-            &predicted,
-            self.y_mean.as_ref().unwrap(),
-            self.y_sd.as_ref().unwrap()
-          ),
-          cost
+          unscaled_predicted,
+          error
         );
       }
       self.back_propagate(&scaled_y, learning_rate);
@@ -216,8 +214,8 @@ impl<T: ActivationFunction, C: CostFunction> NeuralNetwork<T, C> {
 
   fn back_propagate_weights(
     error: &Vec<f64>,
-    curr_layer: &mut NeuralNetworkLayer<T>,
-    prev_layer: &NeuralNetworkLayer<T>,
+    curr_layer: &mut NeuralNetworkLayer,
+    prev_layer: &NeuralNetworkLayer,
     learning_rate: f64,
   ) {
     let weight_derivative =
@@ -231,7 +229,7 @@ impl<T: ActivationFunction, C: CostFunction> NeuralNetwork<T, C> {
 
   fn back_propagate_biases(
     error: &Vec<f64>,
-    curr_layer: &mut NeuralNetworkLayer<T>,
+    curr_layer: &mut NeuralNetworkLayer,
     learning_rate: f64,
   ) {
     curr_layer.biases = add_vector(
@@ -241,6 +239,31 @@ impl<T: ActivationFunction, C: CostFunction> NeuralNetwork<T, C> {
   }
 
   pub fn calculate_error(&self, actual: &Vec<f64>, predicted: &Vec<f64>) -> f64 {
-    return C::cost(actual, predicted);
+    return self.cost_function.cost(actual, predicted);
+  }
+
+  pub fn test(&mut self,input: &Vec<Vec<f64>>, output: &Vec<Vec<f64>>) -> Vec<f64>{
+    let mut rss = vec![0.0;output.len()];
+    for row_index in 0..input[0].len(){
+      let test_sample = get_row(input,row_index);
+      let predicted = self.predict(&test_sample);
+
+      let curr_rss = powi_vector(&add_vector(&get_row(output, row_index), &minus_vector(&predicted)),2);
+      rss = add_vector(&rss,&curr_rss);
+      
+      println!(
+        "input: {input:?}, predicted: {predicted:?}, actual: {actual:?}, RSS: {curr_rss:?}",
+        input=get_row(input, row_index),
+        actual = get_row(output, row_index)
+      );
+    }
+
+    let tss = output.iter().map(|column| {
+      let sd = mean_and_standard_deviation(column).1;
+      let tss = sd.powi(2)*(column.len()-1) as f64;
+      return tss;
+    }).collect::<Vec<f64>>();
+
+    return add_vector(&vec![1.0;output.len()], &minus_vector(&hadamard_product!(&rss,powi_vector(&tss,-1))));
   }
 }

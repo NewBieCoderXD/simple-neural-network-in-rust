@@ -1,16 +1,14 @@
 use crate::activation_functions::ActivationFunction;
 
-pub struct LayerDetails<F>
-where F: ActivationFunction
+pub struct LayerDetails
 {
   pub layer_size: usize,
-  pub activation_function: F
+  pub activation_function: ActivationFunction
 }
 
-impl<F> LayerDetails<F>
-where F: ActivationFunction
+impl LayerDetails
 {
-  pub fn new(layer_size: usize, activation_function: F) -> Self{
+  pub fn new(layer_size: usize, activation_function: ActivationFunction) -> Self{
     LayerDetails{
       layer_size,
       activation_function

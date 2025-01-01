@@ -1,7 +1,7 @@
 use std::{
   default::Default,
   fmt::Display,
-  ops::{Add, Mul},
+  ops::{Add, Mul, Neg},
 };
 /// cross multiplying matrix, and vector.
 /// matrix is on the left, while vector on the right
@@ -128,4 +128,35 @@ where T: Copy{
       return row[row_index]
     }).collect()
   }).collect()
+}
+
+
+pub fn minus_vector<T>(vector: &Vec<T>) -> Vec<T>
+where
+  T: Copy + Display + Neg<Output = T>,
+{
+  return vector.iter().map(|&value| -value).collect();
+}
+
+pub trait Powerable<T>{
+  fn powi(self,power: i32) -> T;
+}
+
+impl Powerable<f64> for f64{
+  fn powi(self,power: i32) -> f64 {
+      return self.powi(power);
+  }
+}
+
+pub fn powi_vector<T>(vector: &Vec<T>, power: i32) -> Vec<T>
+where 
+  T: Powerable<T>+ Copy
+{
+  return vector.iter().map(|&value| value.powi(power)).collect()
+}
+
+pub fn get_row<T>(matrix: &Vec<Vec<T>>, row_index: usize) -> Vec<T>
+where 
+  T: Copy{
+  return matrix.iter().map(|column|column[row_index]).collect()
 }
