@@ -8,7 +8,7 @@
     <!-- <link rel="stylesheet" href="./style.css"> -->
     <style>
       @import url("https://fonts.cdnfonts.com/css/palatino-lt-black");
-      /* blockquote {
+      /* div {
         margin-top: 5px;
         margin-bottom: 5px;
       } */
@@ -40,13 +40,15 @@
       <a href="https://github.com/NewBieCoderXD/simple-neural-network-in-rust"
         >https://github.com/NewBieCoderXD/simple-neural-network-in-rust</a
       >
-      Disclaimer: I'm, by no means, not a professional in computer science, just someone enthusiastic with calculus and Rust.<br>
-      PLEASE take everything in this repo with a gain of salt. If you believe there is a mistake, please open issue on the github repo.
+      Disclaimer: I'm, by no means, not a professional in computer science, just
+      someone enthusiastic with calculus and Rust.<br />
+      PLEASE take everything in this repo with a gain of salt. If you believe
+      there is a mistake, please open issue on the github repo.
 
       <h2>Table of contents</h2>
       <ol>
         <li><a href="#neural-network">What is a neural network?</a></li>
-        <li><a href="#notations">notations</a></li>
+        <li><a href="#notations">Notations</a></li>
         <li><a href="#forward-propagation">Forward Propagation</a></li>
         <li><a href="#cost-function">Cost Function</a></li>
         <li><a href="#gradient-descent">Gradient Descent</a></li>
@@ -59,6 +61,7 @@
             <li><a href="#error-2">Error of \(l\)-th Level</a></li>
           </ul>
         </li>
+        <li><a href="#xavier-init">Xavier Initialization</a></li>
       </ol>
       <h2 id="neural-network">What is a neural network?</h2>
       A neural network is a model of how neurons work. Each layer of the network
@@ -103,6 +106,56 @@
 
       <hr />
 
+      <hr />
+      <h2 id="notations">Notations</h2>
+      Now,now, before moving to deriving equations, let's talk about notations
+      first.
+      <ul>
+        <li>
+          hadamard product(\(\odot\)) \[ \begin{bmatrix} 1 \\<br />
+          2 \\<br />
+          4 \end{bmatrix} \odot \begin{bmatrix} 3 \\<br />
+          8 \\<br />
+          5 \end{bmatrix}= \begin{bmatrix} 1 \cdot 3 \\<br />
+          2 \cdot 8 \\<br />
+          4 \cdot 5 \end{bmatrix} \]
+        </li>
+        <li>
+          matrix multiplication(\(\cdot\))
+          <div>
+            \[ \begin{bmatrix} 1 & 11 \\<br />
+            2 & 13 \\<br />
+            4 & 15 \end{bmatrix} \cdot \begin{bmatrix} 3 & 9 \\<br />
+            8 & 20 \end{bmatrix}= \begin{bmatrix} 1 \cdot 3 + 11 \cdot 8 & 1
+            \cdot 9 + 11 \cdot 20 \\<br />
+            2 \cdot 3 + 13 \cdot 8 & 2 \cdot 9 + 13 \cdot 20 \\<br />
+            4 \cdot 3 + 15 \cdot 8 & 4 \cdot 9 + 15 \cdot 20 \end{bmatrix} \]
+          </div>
+        </li>
+        <li>
+          gradient(\(\nabla\))
+          <div>
+            \[ \begin{align} &v = \begin{bmatrix} x \\<br />
+            y \\<br />
+            z \end{bmatrix} \\<br />
+            &w \left(x,y,z \right) = x^3+2\frac{yz}{x} \\<br />
+            &\frac{\partial w \left(x,y,z \right)}{\partial x} =
+            2x^2-\frac{yz}{x^2} \\<br />
+            &\frac{\partial w \left(x,y,z \right)}{\partial y} = 2\frac{z}{x}
+            \\<br />
+            &\frac{\partial w \left(x,y,z \right)}{\partial z} = 2\frac{y}{x}
+            \\<br />
+            &\nabla_{v} w \left(x,y,z \right) = \begin{bmatrix} \frac{\partial w
+            \left(x,y,z \right)}{\partial x} \\<br />
+            \frac{\partial w \left(x,y,z \right)}{\partial y} \\<br />
+            \frac{\partial w \left(x,y,z \right)}{\partial z} \end{bmatrix} =
+            \begin{bmatrix} 2x^2-\frac{yz}{x^2} \\<br />
+            2\frac{z}{x} \\<br />
+            2\frac{y}{x} \end{bmatrix} \end{align} \]
+          </div>
+        </li>
+      </ul>
+      <hr />
       <h2 id="forward-propagation">Forward Propagation</h2>
       Process of propagating input as a signal to get output. <br />
       When we predict output, we take input as a signal to the first layer(input
@@ -116,11 +169,9 @@
       notation. <br />
       Let's say that removing \(i\),\(j\) from notation will make it a matrix(or
       a vector). <br />
-      <blockquote>
-        \(\displaystyle{z^{[l]}=W^{[l]} \bullet a^{[l-1]} + b^{[l]}}\)
-      </blockquote>
+      <div>\[z^{[l]}=W^{[l]} \bullet a^{[l-1]} + b^{[l]}\]</div>
       and
-      <blockquote>\(a^{[l]}=g^{[l]}(z^{[l]})\)</blockquote>
+      <div>\[a^{[l]}=g^{[l]}(z^{[l]})\]</div>
 
       <hr />
 
@@ -143,21 +194,26 @@
       Suppose current point is 1, while a point we move to be closer to local
       minima is 2<br />
 
-      <blockquote>
+      <div>
         \[J^{\prime\prime}=\frac{d^2 J \left(x
         \right)}{dx^2}=\frac{J_2^\prime-J_1^\prime}{x_2-x_1}\]<br />
-      </blockquote>
+      </div>
       We want \(J_2^\prime\) to be \(0\)<br />
-      <blockquote>
+      <div>
         \[ \begin{align} \frac{d^2 J\left(x\right)}{dx^2}
-        &=\frac{0-\frac{dJ\left(x\right)}{dx}}{x_2-x_1}\\ \left(x_2-x_1 \right)
-        \frac{d^2 J \left( x \right)}{dx^2}&=-\frac{dJ \left(x \right)}{dx}\\
+        &=\frac{0-\frac{dJ\left(x\right)}{dx}}{x_2-x_1}\\<br />
+        \left(x_2-x_1 \right) \frac{d^2 J \left( x \right)}{dx^2}&=-\frac{dJ
+        \left(x \right)}{dx}\\<br />
         x_2-x_1&=-\frac{dJ \left(x \right)}{dx} \frac{dx^2}{d^2 J \left(x
-        \right)}\\ x_2&=x_1-\frac{dJ \left(x \right)}{dx} \cdot
+        \right)}\\<br />
+        x_2&=x_1-\frac{dJ \left(x \right)}{dx} \cdot \frac{1}{J^{\prime\prime}}
+        \end{align} \]
+      </div>
+      or
+      <div>
+        \[ \begin{align} x_{new}&=x_{old}-\frac{dJ \left(x \right)}{dx} \cdot
         \frac{1}{J^{\prime\prime}} \end{align} \]
-      </blockquote>
-      or \[ \begin{align} x_{new}&=x_{old}-\frac{dJ \left(x \right)}{dx} \cdot
-      \frac{1}{J^{\prime\prime}} \end{align} \]
+      </div>
       <br />
       Then we will get closer to local minima. This is essentially doing Newton
       method on first-order derivative.<br />
@@ -171,7 +227,8 @@
       \(\alpha=\frac{1}{J^{\prime\prime}}\), and call it learning rate, so that
       if \(\alpha\) is high, \(|x_2-x_1|\) is high, and vice versa!<br />
       (Usually learning rate is around \(0.0001\) to \(0.1\))<br />
-      So the equation becomes \[x_{new}=x_{old}-\alpha \cdot \frac{dJ(x)}{dx}\]
+      So the equation becomes
+      <div>\[x_{new}=x_{old}-\alpha \cdot \frac{dJ(x)}{dx}\]</div>
 
       <hr />
 
@@ -179,120 +236,319 @@
       Back propagation is a process of adjusting weights and biases, layer by
       layer, from right to left(propagate back) by using gradient descent.<br />
       Writing gradient descent of weights and biases into equations, we get
-      <blockquote>
+      <div>
         \[W_{i,j (new)}^{[l]}=W_{i,j (old)}^{[l]}-\alpha \cdot \frac{\partial
         J(y,\hat y)}{\partial W_{i,j}^{[l]}}\]
-      </blockquote>
-      <blockquote>
+      </div>
+      <div>
         \[b_{i (new)}^{[l]}=b_{i (old)}^{[l]}-\alpha \cdot \frac{\partial
         J(y,\hat y)}{\partial b_i^{[l]}}\]
-      </blockquote>
+      </div>
 
       We need to find weight gradient(\(\frac{dJ(y,\hat y)}{dW_{i,j}^{[l]}}\))
       and bias gradient(\(\frac{\partial J(y,\hat y)}{\partial b_i^{[l]}}\)).
 
       <h4 id="weight-gradient">• Weight Gradient</h4>
-      using chain rule, we get \[\frac{\partial J(y,\hat y)}{\partial
-      W_{i,j}^{[l]}}=\frac{\partial J(y,\hat y)}{\partial z_{j}^{[l]}}
-      \frac{\partial z_{j}^{[l]}}{\partial W_{i,j}^{[l]}}\] <br />
+      using chain rule, we get
+      <div>
+        \[\frac{\partial J(y,\hat y)}{\partial W_{i,j}^{[l]}}=\frac{\partial
+        J(y,\hat y)}{\partial z_{j}^{[l]}} \frac{\partial z_{j}^{[l]}}{\partial
+        W_{i,j}^{[l]}}\]
+      </div>
+      <br />
       Why? because \(W_{i,j}^{[l]}\) only affects \(z_{j}^{[l]}\) <br />
-      We know that \[ \begin{align} \frac{\partial z_{j}^{[l]}}{\partial
-      W_{i,j}^{[l]}}&=a_i^{[l-1]} \\ \frac{\partial J(y,\hat y)}{\partial
-      W_{i,j}^{[l]}}&=\frac{\partial J(y,\hat y)}{\partial z_{j}^{[l]}}
-      a_i^{[l-1]} \end{align} \]
+      We know that
+      <div>
+        \[ \begin{align} \frac{\partial z_{j}^{[l]}}{\partial
+        W_{i,j}^{[l]}}&=a_i^{[l-1]} \\<br />
+        \frac{\partial J(y,\hat y)}{\partial W_{i,j}^{[l]}}&=\frac{\partial
+        J(y,\hat y)}{\partial z_{j}^{[l]}} a_i^{[l-1]} \end{align} \]
+      </div>
 
       <h4 id="bias-gradient">• Bias Gradient</h4>
-      using chain rule, we get \[\frac{\partial J(y,\hat y)}{\partial
-      b_i^{[l]}}=\frac{\partial J(y,\hat y)}{\partial z_{i}^{[l]}}
-      \frac{\partial z_{i}^{[l]}}{\partial b_{i}^{[l]}}\] <br />
+      using chain rule, we get
+      <div>
+        \[\frac{\partial J(y,\hat y)}{\partial b_i^{[l]}}=\frac{\partial
+        J(y,\hat y)}{\partial z_{i}^{[l]}} \frac{\partial z_{i}^{[l]}}{\partial
+        b_{i}^{[l]}}\]
+      </div>
+      <br />
       Why? because \(b_{i}^{[l]}\) only affects \(z_{i}^{[l]}\) <br />
-      \[ \begin{align} \frac{\partial J(y,\hat y)}{\partial
-      b_{i}^{[l]}}&=\frac{\partial J(y,\hat y)}{\partial z_{j}^{[l]}}
-      \frac{\partial (\sum W_{i,j}^{[l]} \cdot a_i^{[l-1]}+b_i^{[l]})}{\partial
-      b_{i}^{[l]}}\\ \frac{\partial J(y,\hat y)}{\partial
-      b_{i}^{[l]}}&=\frac{\partial J(y,\hat y)}{\partial z_{j}^{[l]}}
-      \end{align} \] We can see that weight gradient and bias gradient share the
-      same term, let's name it \(\delta_j^{[l]}\) (delta), it's basically error
-      of \(j\)-th neuron in \(l\)-th layer.<br />
-      \[\delta_j^{[l]} = \frac{\partial J(y,\hat y)}{\partial z_{j}^{[l]}}\] Or
-      vector form \[\delta^{[l]} = \frac{\partial J(y,\hat y)}{\partial z^{[l]}}
-      \] we can write \[ \begin{align} \frac{\partial J(y,\hat y)}{\partial
-      W_{i,j}^{[l]}}&=\delta_j^{[l]} a_i^{[l-1]} \\ \frac{\partial J(y,\hat
-      y)}{\partial W_{i,j}^{[l]}}&=\delta_j^{[l]} a_i^{[l-1]} \end{align} \] \[
-      \nabla_{W^{[l]}} J(y,\hat y) = \begin{bmatrix} a_0^{[l-1]} \delta_0^{[l]}
-      & a_1^{[l-1]} \delta_0^{[l]} & a_2^{[l-1]} \delta_0^{[l]} & ... \\
-      a_0^{[l-1]} \delta_1^{[l]} & a_1^{[l-1]} \delta_1^{[l]} & a_2^{[l-1]}
-      \delta_1^{[l]}& ... \\ a_0^{[l-1]} \delta_2^{[l]} & a_1^{[l-1]}
-      \delta_2^{[l]} & a_2^{[l-1]} \delta_2^{[l]}& ... \\ ... & ... & ... & ...
-      \\ \end{bmatrix} \] \[ \nabla_{W^{[l]}} J(y,\hat y) = \delta^{[l]}
-      a^{[l-1]} \] and \[ \begin{align} \frac{\partial J(y,\hat y)}{\partial
-      b_{i}^{[l]}}=\delta_i^{[l]}\\ \frac{\partial J(y,\hat y)}{\partial
-      b^{[l]}}=\delta^{[l]} \end{align} \] now if we can find
-      \(\delta^{[l]}\) we are done.
+
+      <div>
+        \[ \begin{align} \frac{\partial J(y,\hat y)}{\partial
+        b_{i}^{[l]}}&=\frac{\partial J(y,\hat y)}{\partial z_{j}^{[l]}}
+        \frac{\partial (\sum W_{i,j}^{[l]} \cdot
+        a_i^{[l-1]}+b_i^{[l]})}{\partial b_{i}^{[l]}}\\<br />
+        \frac{\partial J(y,\hat y)}{\partial b_{i}^{[l]}}&=\frac{\partial
+        J(y,\hat y)}{\partial z_{j}^{[l]}} \end{align} \]
+      </div>
+      We can see that weight gradient and bias gradient share the same term,
+      let's name it \(\delta_j^{[l]}\) (delta), it's basically error of \(j\)-th
+      neuron in \(l\)-th layer.<br />
+
+      <div>
+        \[\delta_j^{[l]} = \frac{\partial J(y,\hat y)}{\partial z_{j}^{[l]}}\]
+      </div>
+      Or vector form
+      <div>
+        \[\delta^{[l]} = \frac{\partial J(y,\hat y)}{\partial z^{[l]}} \]
+      </div>
+      we can write
+      <div>
+        \[ \begin{align} \frac{\partial J(y,\hat y)}{\partial
+        W_{i,j}^{[l]}}&=\delta_j^{[l]} a_i^{[l-1]} \\<br />
+        \frac{\partial J(y,\hat y)}{\partial W_{i,j}^{[l]}}&=\delta_j^{[l]}
+        a_i^{[l-1]} \end{align} \]
+      </div>
+      <div>
+        \[ \nabla_{W^{[l]}} J(y,\hat y) = \begin{bmatrix} a_0^{[l-1]}
+        \delta_0^{[l]} & a_1^{[l-1]} \delta_0^{[l]} & a_2^{[l-1]} \delta_0^{[l]}
+        & ... \\<br />
+        a_0^{[l-1]} \delta_1^{[l]} & a_1^{[l-1]} \delta_1^{[l]} & a_2^{[l-1]}
+        \delta_1^{[l]}& ... \\<br />
+        a_0^{[l-1]} \delta_2^{[l]} & a_1^{[l-1]} \delta_2^{[l]} & a_2^{[l-1]}
+        \delta_2^{[l]}& ... \\<br />
+        ... & ... & ... & ... \\<br />
+        \end{bmatrix} \]
+      </div>
+      <div>\[ \nabla_{W^{[l]}} J(y,\hat y) = \delta^{[l]} a^{[l-1]} \]</div>
+      and
+      <div>
+        \[ \begin{align} \frac{\partial J(y,\hat y)}{\partial
+        b_{i}^{[l]}}=\delta_i^{[l]}\\<br />
+        \frac{\partial J(y,\hat y)}{\partial b^{[l]}}=\delta^{[l]} \end{align}
+        \]
+      </div>
+      now if we can find \(\delta^{[l]}\) we are done.
 
       <h4 id="error-1">• Error of \(L\)-th Level</h4>
       We need to use chain rule to introduce \(a^{[L]}\) because it is direct
       argument of cost functions.
-      <blockquote>
+      <div>
         \[ \begin{align} \frac{\partial J(y,\hat y)}{\partial
         z_{j}^{[L]}}&=\frac{\partial J(y,\hat y)}{\partial a_{j}^{[L]}} \cdot
-        \frac{\partial a_{j}^{[L]}}{\partial z_{j}^{[L]}} \\ \frac{\partial
-        J(y,\hat y)}{\partial z_{j}^{[L]}}&=\frac{\partial J(y,\hat y)}{\partial
-        a_{j}^{[L]}} \cdot g^{\prime [L]} \bigl(z_{j}^{[L]} \bigr) \\
+        \frac{\partial a_{j}^{[L]}}{\partial z_{j}^{[L]}} \\<br />
+        \frac{\partial J(y,\hat y)}{\partial z_{j}^{[L]}}&=\frac{\partial
+        J(y,\hat y)}{\partial a_{j}^{[L]}} \cdot g^{\prime [L]}
+        \bigl(z_{j}^{[L]} \bigr) \\<br />
         \frac{\partial J(y,\hat y)}{\partial z_{j}^{[L]}}&=\frac{\partial
         J(y,\hat y)}{\partial a_{j}^{[L]}} \cdot g^{\prime [L]}
         \bigl(z_{j}^{[L]} \bigr) \end{align}\]
-      </blockquote>
+      </div>
       vector form:<br />
-      <blockquote>
+      <div>
         \[\frac{\partial J(y,\hat y)}{\partial z^{[L]}}=\frac{\partial J(y,\hat
         y)}{\partial a^{[L]}} \cdot g^{\prime [L]} \bigl(z^{[L]} \bigr)\]
-      </blockquote>
+      </div>
       or
-      <blockquote>
+      <div>
         \[\nabla_{z^{[L]}} J(y,\hat y)=\nabla_{a^{[L]}} J(y,\hat y) \cdot
         g^{\prime [L]} \bigl(z^{[L]} \bigr)\]
-      </blockquote>
+      </div>
 
       <h4 id="error-2">• Error of \(l\)-th Level</h4>
       <!-- prettier-ignore -->
-      <blockquote>
+      <div>
         \[ \begin{align} 
-        \delta_i^{[l]} &= \frac{\partial J(y,\hat y)}{\partial z_i^{[l]}} \\ 
+        \delta_i^{[l]} &= \frac{\partial J(y,\hat y)}{\partial z_i^{[l]}} \\<br> 
         &= \sum_{j} \frac{\partial J(y,\hat y)}{\partial
-        z_j^{[l+1]}} \cdot \frac{\partial z_j^{[l+1]}}{\partial z_i^{[l]}} \\ 
-        &= \sum_{j} \delta_j^{[l+1]} \cdot \frac{\partial \left( \sum_k W_{kj}^{[l+1]} \cdot a_k^{[l]} + b_j^{[l+1]} \right)}{\partial z_i^{[l]}} \\ 
-        &= \sum_{j} \delta_j^{[l+1]} \cdot \frac{\partial \left( \sum_k W_{kj}^{[l+1]} \cdot a_k^{[l]} + b_j^{[l+1]} \right)}{\partial a_i^{[l]}} \cdot \frac{\partial a_i^{[l]}}{\partial z_i^{[l]}} \\
-        &= \sum_{j} \delta_j^{[l+1]} \cdot W_{ij}^{[l+1]} \cdot g^{\prime [l]} \bigl(z_i^{[l]} \bigr) \\
+        z_j^{[l+1]}} \cdot \frac{\partial z_j^{[l+1]}}{\partial z_i^{[l]}} \\<br> 
+        &= \sum_{j} \delta_j^{[l+1]} \cdot \frac{\partial \left( \sum_k W_{kj}^{[l+1]} \cdot a_k^{[l]} + b_j^{[l+1]} \right)}{\partial z_i^{[l]}} \\<br> 
+        &= \sum_{j} \delta_j^{[l+1]} \cdot \frac{\partial \left( \sum_k W_{kj}^{[l+1]} \cdot a_k^{[l]} + b_j^{[l+1]} \right)}{\partial a_i^{[l]}} \cdot \frac{\partial a_i^{[l]}}{\partial z_i^{[l]}} \\<br>
+        &= \sum_{j} \delta_j^{[l+1]} \cdot W_{ij}^{[l+1]} \cdot g^{\prime [l]} \bigl(z_i^{[l]} \bigr) \\<br>
         &=\begin{bmatrix}
-          g^{\prime [l]} \bigl(z_0^{[l]} \bigr) \\
-          g^{\prime [l]} \bigl(z_1^{[l]} \bigr) \\
+          g^{\prime [l]} \bigl(z_0^{[l]} \bigr) \\<br>
+          g^{\prime [l]} \bigl(z_1^{[l]} \bigr) \\<br>
           ...
         \end{bmatrix} \odot
         \begin{bmatrix}
-          \sum_{j} \delta_j^{[l+1]} \cdot W_{0,j}^{[l+1]} \\
-          \sum_{j} \delta_j^{[l+1]} \cdot W_{1,j}^{[l+1]} \\
+          \sum_{j} \delta_j^{[l+1]} \cdot W_{0,j}^{[l+1]} \\<br>
+          \sum_{j} \delta_j^{[l+1]} \cdot W_{1,j}^{[l+1]} \\<br>
           ...
-        \end{bmatrix} \\
+        \end{bmatrix} \\<br>
         &=\begin{bmatrix}
-          g^{\prime [l]} \bigl(z_0^{[l]} \bigr) \\
-          g^{\prime [l]} \bigl(z_1^{[l]} \bigr) \\
+          g^{\prime [l]} \bigl(z_0^{[l]} \bigr) \\<br>
+          g^{\prime [l]} \bigl(z_1^{[l]} \bigr) \\<br>
           ...
         \end{bmatrix} \odot
         \begin{bmatrix}
-          W_{0,0}^{[l+1]} &  W_{0,1}^{[l+1]} & ... \\
-          W_{1,0}^{[l+1]} &  W_{1,1}^{[l+1]} & ... \\
+          W_{0,0}^{[l+1]} &  W_{0,1}^{[l+1]} & ... \\<br>
+          W_{1,0}^{[l+1]} &  W_{1,1}^{[l+1]} & ... \\<br>
           ... & ... & ...
         \end{bmatrix} \cdot
         \begin{bmatrix}
-          \delta_j^{[l+1]} \\
-          \delta_j^{[l+1]} \\
+          \delta_j^{[l+1]} \\<br>
+          \delta_j^{[l+1]} \\<br>
           ...
-        \end{bmatrix} \\
-        &=g^{\prime [l]} \bigl(z^{[l]} \bigr) \odot \left (W^{[l+1]} \right)^T \cdot \delta^{[l+1]} \\
+        \end{bmatrix} \\<br>
+        &=g^{\prime [l]} \bigl(z^{[l]} \bigr) \odot \left (W^{[l+1]} \right)^T \cdot \delta^{[l+1]} \\<br>
         \delta^{[l-1]} &=g^{\prime [l-1]} \bigl(z^{[l-1]} \bigr) \odot \left (W^{[l]} \right)^T \cdot \delta^{[l]}
         \end{align} \]
-      </blockquote>
+      </div>
+      Yes! we finally finish back propagation, now what?<br />
+      Well.. what would be initial weights or biases?
+
+      <hr />
+      <h2 id="xavier-init">Xavier Initialization</h2>
+      If we init weights to be too low(e.g. 0), then activation functions like
+      sigmoid, tanh become linear(low x) <br />
+      If we init weights to be too high, then activation functions like sigmoid,
+      tanh will have really small gradient and become saturated.<br />
+      If we random our weights, we'd want it to have good variance, because
+      higher variance means weights can to be lower or higher.
+      <br />
+      Xavier Initialization is an initialization for functions like sigmoid and
+      tanh. There are a few requirements
+      <ul>
+        <li>
+          activation functions are symmetric odd functions \[g(-z)=-g(z)\]
+        </li>
+        <li>Expectation of input is 0 \[E[a^{[0]}=0\]</li>
+      </ul>
+      and some assumptions
+      <ul>
+        <li>
+          \(W_{i,j}\) follows the same symmetric distribution in the same layer
+        </li>
+        <li>Expectation of error is 0 \[E[\delta_{i}]=0\]</li>
+        <li>
+          Error of each layer are independent and follow the same distribution
+        </li>
+      </ul>
+      Firstly we init bias as zeros for simplicity.<br />
+      If variance of \(z\) increases each layer, it would not be good for layers
+      on the right as it will eventually saturate.<br />
+      So we want variance of \(z\) to be near the same. Let's find expectation
+      of \(z\) and \(a\) \[ \begin{align} &z_i^{[l]}=\sum_{j=1}^{n^{[l-1]}}
+      W_{j,i}^{[l]} \cdot a_j^{[l-1]} + b_i^{[l]} \\<br />
+      &z_i^{[1]]}=\sum_{j=1}^{n^{[0]}} W_{j,i}^{[l]} \cdot a_j^{[0]} + b_i^{[0]}
+      \\<br />
+      &E[z_i^{[1]}]=n^{[0]}\cdot E[W_{j,i}^{[1]}] \cdot E[a_j^{[0]}] \\<br />
+      &E[z_i^{[1]}]=0 \\<br />
+      \end{align} \] we know that \[ a_i^{[l]}=g^{[l]} \left( z_i^{[l]} \right)
+      \] so \[ \begin{align} E[a_i^{[l]}]&=E[g^{[l]} \left( z_i^{[l]} \right)]
+      \\<br />
+      &=\int_{-\infty}^{\infty} g^{[l]} \left( z_i^{[l]} \right) p \left(
+      z_i^{[l]} \right) dz \end{align} \] We assume that g is a symmetric odd
+      function \(g(-z)=-g(z)\), z is symmetrically distributed(because
+      \(w_{i,j}, a_i\)) are symmetrically distributed \(p(-z)=p(z)\). \[
+      \begin{align} E[a_i^{[l]}]&=\int_{-\infty}^{0} g^{[l]} \left( z_i^{[l]}
+      \right) p \left( z_i^{[l]} \right) dz+\int_{0}^{\infty} g^{[l]} \left(
+      z_i^{[l]} \right) p \left( z_i^{[l]} \right) dz \\<br />
+      &=-\int_{\infty}^{0} g^{[l]} \left( -z_i^{[l]} \right) p \left( -z_i^{[l]}
+      \right) dz+\int_{0}^{\infty} g^{[l]} \left( z_i^{[l]} \right) p \left(
+      z_i^{[l]} \right) dz \\<br />
+      &=\int_{\infty}^{0} g^{[l]} \left( z_i^{[l]} \right) p \left( z_i^{[l]}
+      \right) dz+\int_{0}^{\infty} g^{[l]} \left( z_i^{[l]} \right) p \left(
+      z_i^{[l]} \right) dz \\<br />
+      &=-\int_{0}^{\infty} g^{[l]} \left( z_i^{[l]} \right) p \left( z_i^{[l]}
+      \right) dz+\int_{0}^{\infty} g^{[l]} \left( z_i^{[l]} \right) p \left(
+      z_i^{[l]} \right) dz \\<br />
+      &=0\\<br />
+      \end{align} \] Doing this repeatedly, we can see that \(E[a_i^{[l]}]=0\)
+      and \(E[z_i^{[l]}]=0\) for all i, l <br />
+      Okay, let's find variance of weight \[
+      Var(z_i^{[l]})=Var(\sum_{j}^{n^{[l-1]}} W_{j,i}^{[l]} \cdot
+      a_j^{[l-1]}+b_i^{[l]}) \] But we init biases as zeros \[
+      Var(z_i^{[l]})=Var(\sum_{j}^{n^{[l-1]}} W_{j,i}^{[l]} \cdot a_j^{[l-1]})
+      \] We know that \(a_j^{[l-1]}\) and \(W_{j,i}^{[l]}\) is independent for
+      each j \[ Var(z_i^{[l]})=n^{[l-1]} Var(W_{j,i}^{[l]} \cdot a_j^{[l-1]}) \]
+      Variance of a product of independent random variables is \[ Var(X \cdot Y)
+      = E(X)^2 \cdot Var(Y) + E(Y)^2 \cdot Var(X) + Var(X) \cdot Var(Y) \] \[
+      Var(W_{j,i}^{[l]} \cdot a_j^{[l-1]}) = E(W_{j,i}^{[l]})^2 \cdot
+      Var(a_j^{[l-1]}) + E(a_j^{[l-1]})^2 \cdot Var(W_{j,i}^{[l]})+
+      Var(W_{j,i}^{[l]}) \cdot Var( a_j^{[l-1]}) \] This is one of the reasons
+      that we want \(E(W_{j,i}^{[l]})\) and \( E(a_j^{[l-1]})\) to be \(0\), so
+      we can cut it out.
+      <div>
+        \[ \begin{align} &Var(W_{j,i}^{[l]} \cdot a_j^{[l-1]})=
+        Var(W_{j,i}^{[l]}) \cdot Var( a_j^{[l-1]}) \\<br />
+        &Var(z_i^{[l]})=n^{[l-1]} Var(W_{j,i}^{[l]}) \cdot Vec(a_j^{[l-1]})
+        \end{align} \]
+      </div>
+      We require that \(g^{[l]}(z) \approx z\) for small \(z\), so
+      \(Var(a_i^{[l]}) \approx Var(z_i^{[l]})=\)
+      <div>
+        \[ Var(z_i^{[l]})=n^{[l-1]} Var(W_{j,i}^{[l]}) \cdot Var(z_i^{[l-1]}) \]
+      </div>
+      We want variance of \(z\) to be the same each propagation
+      <div>
+        \[ \begin{align} 1=n^{[l-1]} Var(W_{j,i}^{[l]}) \\<br />
+        Var(W_{j,i}^{[l]}) = \frac{1}{n^{[l-1]} } \end{align} \]
+      </div>
+      This variance is best suited for forward propagation,but what about back
+      propagation?<br />
+      <div>
+        \[ \delta_i^{[l-1]}= \sum_j \delta_j^{[l]} \cdot W_{i,j}^{[l]} \cdot
+        g^{\prime} \left( z_i^{[l-1]} \right)\]
+      </div>
+      for small \(z\), \(g(z) \approx z\) so \(g^{\prime}(z)=1\)
+      <div>
+        \[ \begin{align} \delta_i^{[l-1]} &\approx \sum_j \delta_j^{[l]} \cdot
+        W_{i,j}^{[l]} \\<br />
+        Var(\delta_i^{[l-1]}) &\approx Var(\sum_j \delta_j^{[l]} \cdot
+        W_{i,j}^{[l]}) \\<br />
+        Var(\delta_i^{[l-1]}) &\approx n^{[l]} Var(\delta_j^{[l]} \cdot
+        W_{i,j}^{[l]}) \\<br />
+        Var(\delta_i^{[l-1]}) &\approx n^{[l]} [E(\delta_j^{[l]})^2
+        Var(W_{i,j}^{[l]}) + E(W_{i,j}^{[l]})^2 Var(\delta_j^{[l]})
+        +Var(\delta_j^{[l]}) Var(W_{i,j}^{[l]})] \\<br />
+        Var(\delta_i^{[l-1]}) &\approx n^{[l]} Var(\delta_j^{[l]})
+        Var(W_{i,j}^{[l]}) \end{align} \]
+      </div>
+      Do you see a pattern here? :) <br />
+      We don't want error's variance to be too high or too low, so error of all
+      layers should have the same value of variance just like \(z\) above!
+      <div>
+        \[ \begin{align} 1 &= n^{[l]} Var(W_{i,j}^{[l]}) \\<br />
+        Var(W_{i,j}^{[l]})&= \frac{1}{n^{[l]} }\\<br />
+        \end{align} \]
+      </div>
+      So best variance of weight would be average of \(\frac{1}{n^{[l]}}\) and
+      \(\frac{1}{n^{[l-1]}}\). <br />
+      which mean would be the best for this? choosing which mean to use might not even
+      matter much(<a href="https://ai.stackexchange.com/a/43895">source</a>).<br>
+      The authors of
+      <a href="https://proceedings.mlr.press/v9/glorot10a.html"
+        >the original paper</a
+      >
+      used harmonic mean which gives simplest form.
+      <div>\[ \frac{2}{n^{[l]}+n^{[l-1]}} \]</div>
+      while arithmetic mean gives
+      <div>\[\frac{n^{[l]}+n^{[l+1]}}{2n^{[l]}n^{[l-1]}}\]</div>
+      To conclude, initial weights are symmetrically distributed random
+      variables with mean of 0, and variance of \(\frac{2}{n^{[l]}+n^{[l-1]}}\).
+      <br />
+      We can choose symmetric distribution to use, like uniform or normal
+      distribution. <br />
+      In case of uniform distribution:
+      <div>
+        \[ \begin{align} W \sim U(a,b) \\<br />
+        E(W)=\frac{a+b}{2}&=0 \\<br />
+        a&=-b \\<br />
+        \end{align}\]
+      </div>
+      <div>
+        \[\begin{align} Var(W)=\frac{(a+b)^2}{12}&=\frac{2}{n^{[l]}+n^{[l+1]}}
+        \\<br />
+        \frac{(2a)^2}{12}&=\frac{2}{n^{[l]}+n^{[l+1]}} \\<br />
+        a&=-\sqrt{\frac{6}{n^{[l]}+n^{[l+1]}}} \\<br />
+        \end{align} \]
+      </div>
+      <div>
+        \[ W \sim
+        U(-\sqrt{\frac{6}{n^{[l]}+n^{[l+1]}}},\sqrt{\frac{6}{n^{[l]}+n^{[l+1]}}})
+        \]
+      </div>
+      In case of normal distribution:
+      <div>\[
+        W \sim N(0,\frac{2}{n^{[l]}+n^{[l-1]}})  
+      \]</div>
+      <b>Note that Xavier initialization only works for activation functions that \(g(z) \approx z\) when z is small, and is a symmetric odd functin like Linear, tanh, or sigmoid.</b><br>
+      Why can we not use same value for initial weights?<br>
+      &emsp; Because then each neuron think and produce same value making it behaving like there is only 1 neuron in 1 layer which defeats the purpose of having multiple neurons.
+      <hr>
     </main>
   </body>
 </html>

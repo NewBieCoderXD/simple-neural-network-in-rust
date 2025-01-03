@@ -1,9 +1,11 @@
 use crate::linear_algebra::{
-  add_matrices, add_vector, get_row, matrix_dot_vector, minus_vector, powi_vector, scalar_multiply_matrix, scalar_multiply_vector, transpose_matrix, vector_dot_transposed_vector
+  add_matrices, add_vector, get_row, matrix_dot_vector, minus_vector, powi_vector,
+  scalar_multiply_matrix, scalar_multiply_vector, transpose_matrix, vector_dot_transposed_vector,
 };
 use crate::stat::mean_and_standard_deviation;
-use crate::{ cost_functions::CostFunction, hadamard_product,
-  layer_details::LayerDetails, neural_network_layer::NeuralNetworkLayer,
+use crate::{
+  cost_functions::CostFunction, hadamard_product, layer_details::LayerDetails,
+  neural_network_layer::NeuralNetworkLayer,
 };
 use rand::Rng;
 use std::fmt::Debug;
@@ -52,6 +54,7 @@ impl NeuralNetwork {
         weights = (0..layer_details.layer_size)
           .map(|_| Self::random_vector(layers[index - 1].size, layer_details.layer_size))
           .collect();
+        // weights = vec![vec![rand::thread_rng().gen_range(0.0..1.0); layers[index - 1].size]; layer_details.layer_size];
         biases = vec![0.0; layer_details.layer_size];
       } else {
         weights = vec![];
@@ -115,7 +118,9 @@ impl NeuralNetwork {
 
       if i > 1 {
         error = hadamard_product!(
-          left_layer.activation_function.derivative(left_layer.z_values.as_ref().unwrap()),
+          left_layer
+            .activation_function
+            .derivative(left_layer.z_values.as_ref().unwrap()),
           matrix_dot_vector(&transpose_matrix(&curr_layer.weights), &error)
         );
       }
@@ -157,16 +162,13 @@ impl NeuralNetwork {
       let unscaled_predicted = Self::vec_standard_unscale(
         &predicted,
         self.y_mean.as_ref().unwrap(),
-        self.y_sd.as_ref().unwrap()
+        self.y_sd.as_ref().unwrap(),
       );
       if row % 1000 == 0 {
         let error = self.calculate_error(&y_of_row, &unscaled_predicted);
         println!(
           "x: {:?}, y: {:?}, predicted: {:?}, error: {}",
-          x_of_row,
-          y_of_row,
-          unscaled_predicted,
-          error
+          x_of_row, y_of_row, unscaled_predicted, error
         );
       }
       self.back_propagate(&scaled_y, learning_rate);
@@ -242,28 +244,37 @@ impl NeuralNetwork {
     return self.cost_function.cost(actual, predicted);
   }
 
-  pub fn test(&mut self,input: &Vec<Vec<f64>>, output: &Vec<Vec<f64>>) -> Vec<f64>{
-    let mut rss = vec![0.0;output.len()];
-    for row_index in 0..input[0].len(){
-      let test_sample = get_row(input,row_index);
+  pub fn test(&mut self, input: &Vec<Vec<f64>>, output: &Vec<Vec<f64>>) -> Vec<f64> {
+    let mut rss = vec![0.0; output.len()];
+    for row_index in 0..input[0].len() {
+      let test_sample = get_row(input, row_index);
       let predicted = self.predict(&test_sample);
 
-      let curr_rss = powi_vector(&add_vector(&get_row(output, row_index), &minus_vector(&predicted)),2);
-      rss = add_vector(&rss,&curr_rss);
-      
+      let curr_rss = powi_vector(
+        &add_vector(&get_row(output, row_index), &minus_vector(&predicted)),
+        2,
+      );
+      rss = add_vector(&rss, &curr_rss);
+
       println!(
         "input: {input:?}, predicted: {predicted:?}, actual: {actual:?}, RSS: {curr_rss:?}",
-        input=get_row(input, row_index),
+        input = get_row(input, row_index),
         actual = get_row(output, row_index)
       );
     }
 
-    let tss = output.iter().map(|column| {
-      let sd = mean_and_standard_deviation(column).1;
-      let tss = sd.powi(2)*(column.len()-1) as f64;
-      return tss;
-    }).collect::<Vec<f64>>();
+    let tss = output
+      .iter()
+      .map(|column| {
+        let sd = mean_and_standard_deviation(column).1;
+        let tss = sd.powi(2) * (column.len() - 1) as f64;
+        return tss;
+      })
+      .collect::<Vec<f64>>();
 
-    return add_vector(&vec![1.0;output.len()], &minus_vector(&hadamard_product!(&rss,powi_vector(&tss,-1))));
+    return add_vector(
+      &vec![1.0; output.len()],
+      &minus_vector(&hadamard_product!(&rss, powi_vector(&tss, -1))),
+    );
   }
 }
