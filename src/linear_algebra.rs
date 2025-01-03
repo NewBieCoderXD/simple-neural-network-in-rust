@@ -122,14 +122,13 @@ where
 }
 
 pub fn transpose_matrix<T>(matrix: &Vec<Vec<T>>) -> Vec<Vec<T>>
-where T: Copy{
-  (0..matrix[0].len()).map(|row_index|{
-    matrix.iter().map(|row|{
-      return row[row_index]
-    }).collect()
-  }).collect()
+where
+  T: Copy,
+{
+  (0..matrix[0].len())
+    .map(|row_index| matrix.iter().map(|row| return row[row_index]).collect())
+    .collect()
 }
-
 
 pub fn minus_vector<T>(vector: &Vec<T>) -> Vec<T>
 where
@@ -138,25 +137,26 @@ where
   return vector.iter().map(|&value| -value).collect();
 }
 
-pub trait Powerable<T>{
-  fn powi(self,power: i32) -> T;
+pub trait Powerable<T> {
+  fn powi(self, power: i32) -> T;
 }
 
-impl Powerable<f64> for f64{
-  fn powi(self,power: i32) -> f64 {
-      return self.powi(power);
+impl Powerable<f64> for f64 {
+  fn powi(self, power: i32) -> f64 {
+    return self.powi(power);
   }
 }
 
 pub fn powi_vector<T>(vector: &Vec<T>, power: i32) -> Vec<T>
-where 
-  T: Powerable<T>+ Copy
+where
+  T: Powerable<T> + Copy,
 {
-  return vector.iter().map(|&value| value.powi(power)).collect()
+  return vector.iter().map(|&value| value.powi(power)).collect();
 }
 
 pub fn get_row<T>(matrix: &Vec<Vec<T>>, row_index: usize) -> Vec<T>
-where 
-  T: Copy{
-  return matrix.iter().map(|column|column[row_index]).collect()
+where
+  T: Copy,
+{
+  return matrix.iter().map(|column| column[row_index]).collect();
 }

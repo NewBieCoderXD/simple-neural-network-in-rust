@@ -54,7 +54,6 @@ impl NeuralNetwork {
         weights = (0..layer_details.layer_size)
           .map(|_| Self::random_vector(layers[index - 1].size, layer_details.layer_size))
           .collect();
-        // weights = vec![vec![rand::thread_rng().gen_range(0.0..1.0); layers[index - 1].size]; layer_details.layer_size];
         biases = vec![0.0; layer_details.layer_size];
       } else {
         weights = vec![];
@@ -64,8 +63,6 @@ impl NeuralNetwork {
         biases,
         weights,
         size: layer_details.layer_size,
-        // network: &network,
-        // index: index,
         activation_function: layer_details.activation_function.clone(),
         activations: None,
         z_values: None,
@@ -81,7 +78,6 @@ impl NeuralNetwork {
 
   pub fn forward_propagate(&mut self, input: &Vec<f64>) -> Vec<f64> {
     assert_eq!(input.len(), self.layers[0].size);
-    // let mut activations = input;
     self.layers[0].activations = Some(input.clone());
     for index in 1..self.layers.len() {
       let (left_splitted, right_splitted) = self.layers.split_at_mut(index);
@@ -149,10 +145,6 @@ impl NeuralNetwork {
         &self.x_mean.as_ref().unwrap(),
         &self.x_sd.as_ref().unwrap(),
       ));
-
-      // if predicted[0].is_nan() {
-      //   break;
-      // }
 
       let scaled_y = Self::vec_standard_scale(
         &y_of_row,

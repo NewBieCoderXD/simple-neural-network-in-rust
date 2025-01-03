@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Making a neural network from scratch</title>
+    <style>
+      @import url("https://fonts.cdnfonts.com/css/palatino-lt-black");
+      hr {
+        background-color: blue;
+        height: 3px;
+        margin-top: 10px;
+        margin-bottom: 10px;
+      }
+      html {
+        font-family: "Palatino LT Light", sans-serif;
+      }
+    </style>
+    <script
+      id="MathJax-script"
+      async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    ></script>
+  </head>
+  <body>
+    <main>
+      <h1>Implementation Details for My Simple Neural Network</h1>
+      By <a href="https://github.com/NewBieCoderXD">NewBieCoderXD</a>, repo:
+      <a href="https://github.com/NewBieCoderXD/simple-neural-network-in-rust"
+        >https://github.com/NewBieCoderXD/simple-neural-network-in-rust</a
+      >
+      Disclaimer: I'm, by no means, not a professional in computer science, just
+      someone enthusiastic with calculus and Rust.<br />
+      PLEASE take everything in this repo with a gain of salt. If you believe
+      there is a mistake, please open issue on the github repo.<br />
+
+      For mathematics details, please check
+      <a
+        href="https://newbiecoderxd.github.io/simple-neural-network-in-rust/html/math_details.html"
+        >here</a
+      ><br>
+      For Linear Algebra, I'll be implementing my own, because I want to.(Yes, my code's performance suffers)
+
+      <h2 id="neural-network">Neural Network Implementation</h2>
+      <code>#[derive(Debug)]
+        pub struct NeuralNetworkLayer {
+          pub biases: Vec<f64>,
+          pub weights: Vec<Vec<f64>>,
+          pub size: usize,
+          pub activation_function: ActivationFunction,
+          pub activations: Option<Vec<f64>>,
+          pub z_values: Option<Vec<f64>>,
+        }</code>
+
+      <h2 id="cost-function">Cost Function Implementation</h2>
+      I implemented MSE cost function
+      
+      <h2 id="forward-propagation">Forward Propagation Implementation</h2>
+
+    </main>
+  </body>
+</html>

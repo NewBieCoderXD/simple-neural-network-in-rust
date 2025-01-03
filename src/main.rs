@@ -11,6 +11,7 @@ mod neural_network;
 mod neural_network_layer;
 mod stat;
 
+#[allow(dead_code)]
 fn adding() {
   let learning_rate = 0.005;
   let scale: f64 = 50.0;
@@ -53,13 +54,13 @@ fn adding() {
   println!("R2: {:?}", neural_network.test(&input, &output));
 }
 
+#[allow(dead_code)]
 fn multiplying() {
   let learning_rate = 0.01;
   let scale: f64 = 50.0;
   let mut neural_network = NeuralNetwork::new(
     &[
       LayerDetails::new(2, ActivationFunction::Linear),
-      LayerDetails::new(10, ActivationFunction::ReLU),
       LayerDetails::new(10, ActivationFunction::Sigmoid),
       LayerDetails::new(10, ActivationFunction::Tanh),
       LayerDetails::new(1, ActivationFunction::Linear),
