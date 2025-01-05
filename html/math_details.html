@@ -15,6 +15,7 @@
       }
       html {
         font-family: "Palatino LT Light", sans-serif;
+        font-size: 1.6em;
       }
     </style>
     <script
@@ -25,15 +26,17 @@
   </head>
   <body>
     <main>
-      <h1>Math Explanation for Simple Neural Network</h1>
+      <h1>Math Explanation for Simple Neural Network(WIP)</h1>
       By <a href="https://github.com/NewBieCoderXD">NewBieCoderXD</a>, repo:
       <a href="https://github.com/NewBieCoderXD/simple-neural-network-in-rust"
         >https://github.com/NewBieCoderXD/simple-neural-network-in-rust</a
       ><br />
       Disclaimer: I'm, by no means, not a professional in computer science, just
       someone enthusiastic with calculus and Rust.<br />
-      PLEASE take everything in this repo with a gain of salt. If you believe
-      there is a mistake, please open issue on the github repo.<br />
+      PLEASE take everything in this repo with a gain of salt. If you notice an
+      issue or have suggestions, please feel free to open an issue on GitHub.<br />
+      Also excuse my poor English.<br />
+
       For implementation details, please check
       <a
         href="https://newbiecoderxd.github.io/simple-neural-network-in-rust/html/implementation_details.html"
@@ -135,7 +138,7 @@
             z \end{bmatrix} \\<br />
             &w \left(x,y,z \right) = x^3+2\frac{yz}{x} \\<br />
             &\frac{\partial w \left(x,y,z \right)}{\partial x} =
-            2x^2-\frac{yz}{x^2} \\<br />
+            3x^2-\frac{2yz}{x^2} \\<br />
             &\frac{\partial w \left(x,y,z \right)}{\partial y} = 2\frac{z}{x}
             \\<br />
             &\frac{\partial w \left(x,y,z \right)}{\partial z} = 2\frac{y}{x}
@@ -144,7 +147,7 @@
             \left(x,y,z \right)}{\partial x} \\<br />
             \frac{\partial w \left(x,y,z \right)}{\partial y} \\<br />
             \frac{\partial w \left(x,y,z \right)}{\partial z} \end{bmatrix} =
-            \begin{bmatrix} 2x^2-\frac{yz}{x^2} \\<br />
+            \begin{bmatrix} 3x^2-\frac{2yz}{x^2} \\<br />
             2\frac{z}{x} \\<br />
             2\frac{y}{x} \end{bmatrix} \end{align} \]
           </div>
@@ -155,16 +158,18 @@
       Process of propagating input as a signal to get output. <br />
       When we predict output, we take input as a signal to the first layer(input
       layer), then propagate through hidden layers then the last layer(output
-      layer), where activations of output layer is predicted output<br />
-      Making an equation, we get \(\displaystyle{z_i^{[l]}=\sum_{j} W_{ij}^{[l]}
-      \cdot a_j^{[l-1]} + b_i^{[l]}}\) and \(a_i^{[l]}=g^{[l]}(z_i^{[l]})\) We
-      are basically amplifying signals from \(l-1\) layer by \(W_ij\), sum it
-      then add bias to be a signal value for the right layer <br />
+      layer), where activations of output layer is our predicted result.<br />
+      Making an equation, we get
+      <div>
+        \[z_i^{[l]}=\sum_{j} W_{ij}^{[l]} \cdot a_j^{[l-1]} + b_i^{[l]}\]
+      </div>
+      and
+      <div>\[a_i^{[l]}=g^{[l]}(z_i^{[l]})\]</div>
+      We are basically amplifying signals from \(l-1\) layer by \(W_{ij}\), sum
+      it then add bias to be a signal value for the right layer <br />
       To make things simpler for computers, let's generalize it to matrix
       notation. <br />
-      Let's say that removing \(i\),\(j\) from notation will make it a matrix(or
-      a vector). <br />
-      <div>\[z^{[l]}=W^{[l]} \bullet a^{[l-1]} + b^{[l]}\]</div>
+      <div>\[z^{[l]}=W^{[l]} \cdot a^{[l-1]} + b^{[l]}\]</div>
       and
       <div>\[a^{[l]}=g^{[l]}(z^{[l]})\]</div>
 
@@ -178,16 +183,15 @@
       We have our model that is basically auto regression, a model that can fits
       to almost any functions. But how do we train it?<br />
       The most popular way is to use gradient descent. The heart of gradient
-      descent is that we want to minimize error.<br />
-      To do that we can use calculus to find a local minima of error with
-      respect to each parameter!<br />
+      descent is that we minimize error using calculus to find a local minima of
+      error for parameter!<br />
       Let's say error is function \(J(x)\), we know that at local minima we will
       have first-order derivative of 0 and second-order derivative of
       positive.<br />
-      But currently the slope isn't 0, how do we move it towards local
-      minima?<br />
-      Suppose current point is 1, while a point we move to be closer to local
-      minima is 2<br />
+      But currently the slope isn't 0, how do we move it towards a local
+      minimum?<br />
+      Suppose current point is 1, while a point we move to be closer to a local
+      minimum is 2<br />
 
       <div>
         \[J^{\prime\prime}=\frac{d^2 J \left(x
@@ -210,11 +214,11 @@
         \frac{1}{J^{\prime\prime}} \end{align} \]
       </div>
       <br />
-      Then we will get closer to local minima. This is essentially doing Newton
-      method on first-order derivative.<br />
-      But what is \(J^{\prime\prime}\)? We know that it must be positive, but
-      what value?<br />
-      We actually can choose if we want to moving towards minima fastly or
+      Then we will get closer to a local minimum. This is essentially doing
+      Newton method on first-order derivative.<br />
+      But what is \(J^{\prime\prime}\)? We know that it must be positive to be a
+      local minimum, but what value?<br />
+      We actually can choose if we want to moving towards a minimum fastly or
       slowly.<br />
       If \(J^{\prime\prime}\) is high, \(|x_2-x_1|\) is small, and vice
       versa.<br />
@@ -254,10 +258,11 @@
       Why? because \(W_{i,j}^{[l]}\) only affects \(z_{j}^{[l]}\) <br />
       We know that
       <div>
-        \[ \begin{align} \frac{\partial z_{j}^{[l]}}{\partial
-        W_{i,j}^{[l]}}&=a_i^{[l-1]} \\<br />
-        \frac{\partial J(y,\hat y)}{\partial W_{i,j}^{[l]}}&=\frac{\partial
-        J(y,\hat y)}{\partial z_{j}^{[l]}} a_i^{[l-1]} \end{align} \]
+        \[\frac{\partial z_{j}^{[l]}}{\partial W_{i,j}^{[l]}}=a_i^{[l-1]} \]
+      </div>
+      <div>
+        \[ \frac{\partial J(y,\hat y)}{\partial W_{i,j}^{[l]}}=\frac{\partial
+        J(y,\hat y)}{\partial z_{j}^{[l]}} a_i^{[l-1]}\]
       </div>
 
       <h4 id="bias-gradient">• Bias Gradient</h4>
@@ -268,7 +273,7 @@
         b_{i}^{[l]}}\]
       </div>
       <br />
-      Why? because \(b_{i}^{[l]}\) only affects \(z_{i}^{[l]}\) <br />
+      Because \(b_{i}^{[l]}\) only affects \(z_{i}^{[l]}\) <br />
 
       <div>
         \[ \begin{align} \frac{\partial J(y,\hat y)}{\partial
@@ -279,8 +284,8 @@
         J(y,\hat y)}{\partial z_{j}^{[l]}} \end{align} \]
       </div>
       We can see that weight gradient and bias gradient share the same term,
-      let's name it \(\delta_j^{[l]}\) (delta), it's basically error of \(j\)-th
-      neuron in \(l\)-th layer.<br />
+      let's name it \(\delta_j^{[l]}\) (delta), it's basically an error of
+      \(j\)-th neuron in \(l\)-th layer.<br />
 
       <div>
         \[\delta_j^{[l]} = \frac{\partial J(y,\hat y)}{\partial z_{j}^{[l]}}\]
@@ -293,8 +298,7 @@
       <div>
         \[ \begin{align} \frac{\partial J(y,\hat y)}{\partial
         W_{i,j}^{[l]}}&=\delta_j^{[l]} a_i^{[l-1]} \\<br />
-        \frac{\partial J(y,\hat y)}{\partial W_{i,j}^{[l]}}&=\delta_j^{[l]}
-        a_i^{[l-1]} \end{align} \]
+        \nabla_{W^{[l]}} J(y,\hat y)&=\delta_j^{[l]} a_i^{[l-1]} \end{align} \]
       </div>
       <div>
         \[ \nabla_{W^{[l]}} J(y,\hat y) = \begin{bmatrix} a_1^{[l-1]}
@@ -404,11 +408,16 @@
       <hr />
       <h2 id="xavier-init">Xavier Initialization</h2>
       If we init weights to be too low(e.g. 0), then activation functions like
-      sigmoid, tanh become linear(low x) <br />
+      sigmoid, tanh become linear(because of low z), this could make a neural
+      network more linear.(We use non-linear activation functions to make a
+      neural network learn non-linearity) <br />
+
       If we init weights to be too high, then activation functions like sigmoid,
-      tanh will have really small gradient and become saturated.<br />
-      If we random our weights, we'd want it to have good variance, because
-      higher variance means weights can to be lower or higher.
+      tanh will become saturated and have really small gradient. This is called
+      vanishing gradient making it difficult for network to learn
+      efficiently.<br />
+      If we random our weights, we need to be careful of variance, as higher
+      variance means lower minimum weights and high maximum weights.
       <br />
       Xavier Initialization is an initialization for functions like sigmoid and
       tanh. There are a few requirements
@@ -417,6 +426,10 @@
           activation functions are symmetric odd functions \[g(-z)=-g(z)\]
         </li>
         <li>Expectation of input is 0 \[E[a^{[0]}]=0\]</li>
+        <li>
+          activation functions are approximately linear at low z \[g(z)\approx z
+          \text{ when } z\approx0\]
+        </li>
       </ul>
       and some assumptions
       <ul>
@@ -430,24 +443,32 @@
       </ul>
       Firstly we init bias as zeros for simplicity.<br />
       If variance of \(z\) increases each layer, it would not be good for layers
-      on the right as it will eventually saturate.<br />
+      on the right(deeper layers) as very high or very low value can saturate
+      activation functions like sigmoid or tanh.<br />
       So we want variance of \(z\) to be near the same. Let's find expectation
-      of \(z\) and \(a\) \[ \begin{align} &z_i^{[l]}=\sum_{j=1}^{n^{[l-1]}}
-      W_{j,i}^{[l]} \cdot a_j^{[l-1]} + b_i^{[l]} \\<br />
-      &z_i^{[1]]}=\sum_{j=1}^{n^{[0]}} W_{j,i}^{[l]} \cdot a_j^{[0]} + b_i^{[0]}
-      \\<br />
-      &E[z_i^{[1]}]=n^{[0]}\cdot E[W_{j,i}^{[1]}] \cdot E[a_j^{[0]}] \\<br />
-      &E[z_i^{[1]}]=0 \\<br />
-      \end{align} \] we know that \[ a_i^{[l]}=g^{[l]} \left( z_i^{[l]} \right)
-      \] so \[ \begin{align} E[a_i^{[l]}]&=E[g^{[l]} \left( z_i^{[l]} \right)]
-      \\<br />
-      &=\int_{-\infty}^{\infty} g^{[l]} \left( z_i^{[l]} \right) p \left(
-      z_i^{[l]} \right) dz \end{align} \] We assume that g is a symmetric odd
-      function \(g(-z)=-g(z)\), z is symmetrically distributed(because
-      \(w_{i,j}, a_i\)) are symmetrically distributed \(p(-z)=p(z)\). \[
-      \begin{align} E[a_i^{[l]}]&=\int_{-\infty}^{0} g^{[l]} \left( z_i^{[l]}
-      \right) p \left( z_i^{[l]} \right) dz+\int_{0}^{\infty} g^{[l]} \left(
-      z_i^{[l]} \right) p \left( z_i^{[l]} \right) dz \\<br />
+      of \(z\) and \(a\)
+      <div>
+        \[ \begin{align} &z_i^{[l]}=\sum_{j=1}^{n^{[l-1]}} W_{j,i}^{[l]} \cdot
+        a_j^{[l-1]} + b_i^{[l]} \\<br />
+        &z_i^{[1]}=\sum_{j=1}^{n^{[0]}} W_{j,i}^{[1]} \cdot a_j^{[0]} +
+        b_i^{[0]} \\<br />
+        &E[z_i^{[1]}]=n^{[0]}\cdot E[W_{j,i}^{[1]}] \cdot E[a_j^{[0]}] \\<br />
+        &E[z_i^{[1]}]=0 \\<br />
+        \end{align} \]
+      </div>
+      we know that
+      <div>
+        \[ a_i^{[l]}=g^{[l]} \left( z_i^{[l]} \right) \] so \[ \begin{align}
+        E[a_i^{[l]}]&=E[g^{[l]} \left( z_i^{[l]} \right)] \\<br />
+        &=\int_{-\infty}^{\infty} g^{[l]} \left( z_i^{[l]} \right) p \left(
+        z_i^{[l]} \right) dz \end{align} \]
+      </div>
+      We assume that g is a symmetric odd function \(g(-z)=-g(z)\), and z is
+      symmetrically distributed(because \(w_{i,j}, a_i\) are symmetrically
+      distributed) \(p(-z)=p(z)\). \[ \begin{align}
+      E[a_i^{[l]}]&=\int_{-\infty}^{0} g^{[l]} \left( z_i^{[l]} \right) p \left(
+      z_i^{[l]} \right) dz+\int_{0}^{\infty} g^{[l]} \left( z_i^{[l]} \right) p
+      \left( z_i^{[l]} \right) dz \\<br />
       &=-\int_{\infty}^{0} g^{[l]} \left( -z_i^{[l]} \right) p \left( -z_i^{[l]}
       \right) dz+\int_{0}^{\infty} g^{[l]} \left( z_i^{[l]} \right) p \left(
       z_i^{[l]} \right) dz \\<br />
@@ -466,13 +487,15 @@
       Var(z_i^{[l]})=Var(\sum_{j}^{n^{[l-1]}} W_{j,i}^{[l]} \cdot a_j^{[l-1]})
       \] We know that \(a_j^{[l-1]}\) and \(W_{j,i}^{[l]}\) is independent for
       each j \[ Var(z_i^{[l]})=n^{[l-1]} Var(W_{j,i}^{[l]} \cdot a_j^{[l-1]}) \]
-      Variance of a product of independent random variables is \[ Var(X \cdot Y)
-      = E(X)^2 \cdot Var(Y) + E(Y)^2 \cdot Var(X) + Var(X) \cdot Var(Y) \] \[
-      Var(W_{j,i}^{[l]} \cdot a_j^{[l-1]}) = E(W_{j,i}^{[l]})^2 \cdot
-      Var(a_j^{[l-1]}) + E(a_j^{[l-1]})^2 \cdot Var(W_{j,i}^{[l]})+
-      Var(W_{j,i}^{[l]}) \cdot Var( a_j^{[l-1]}) \] This is one of the reasons
-      that we want \(E(W_{j,i}^{[l]})\) and \( E(a_j^{[l-1]})\) to be \(0\), so
-      we can cut it out.
+      Variance of a product of independent random variables is
+      <div>
+        \[ Var(X \cdot Y) = E(X)^2 \cdot Var(Y) + E(Y)^2 \cdot Var(X) + Var(X)
+        \cdot Var(Y) \] \[ Var(W_{j,i}^{[l]} \cdot a_j^{[l-1]}) =
+        E(W_{j,i}^{[l]})^2 \cdot Var(a_j^{[l-1]}) + E(a_j^{[l-1]})^2 \cdot
+        Var(W_{j,i}^{[l]})+ Var(W_{j,i}^{[l]}) \cdot Var( a_j^{[l-1]}) \]
+      </div>
+      We want \(E(W_{j,i}^{[l]})\) and \( E(a_j^{[l-1]})\) to be \(0\) so we can
+      cut it out here!
       <div>
         \[ \begin{align} &Var(W_{j,i}^{[l]} \cdot a_j^{[l-1]})=
         Var(W_{j,i}^{[l]}) \cdot Var( a_j^{[l-1]}) \\<br />
@@ -491,6 +514,7 @@
       </div>
       This variance is best suited for forward propagation,but what about back
       propagation?<br />
+      We know that
       <div>
         \[ \delta_i^{[l-1]}= \sum_j \delta_j^{[l]} \cdot W_{i,j}^{[l]} \cdot
         g^{\prime} \left( z_i^{[l-1]} \right)\]
@@ -510,8 +534,9 @@
         Var(W_{i,j}^{[l]}) \end{align} \]
       </div>
       Do you see a pattern here? :) <br />
-      We don't want error's variance to be too high or too low, so error of all
-      layers should have the same value of variance just like \(z\) above!
+      We also don't want error's variance to be too high or too low, so error of
+      all layers should have the same value of variance just like what we did
+      with \(z\) above!
       <div>
         \[ \begin{align} 1 &= n^{[l]} Var(W_{i,j}^{[l]}) \\<br />
         Var(W_{i,j}^{[l]})&= \frac{1}{n^{[l]} }\\<br />
@@ -551,9 +576,9 @@
         \end{align} \]
       </div>
       <div>
-        \[ W \sim
-        U \left(-\sqrt{\frac{6}{n^{[l]}+n^{[l-1]}}},\sqrt{\frac{6}{n^{[l]}+n^{[l-1]}}} \right)
-        \]
+        \[ W \sim U
+        \left(-\sqrt{\frac{6}{n^{[l]}+n^{[l-1]}}},\sqrt{\frac{6}{n^{[l]}+n^{[l-1]}}}
+        \right) \]
       </div>
       In case of normal distribution:
       <div>\[ W \sim N \left(0,\frac{2}{n^{[l]}+n^{[l-1]}} \right) \]</div>
@@ -564,10 +589,23 @@
       ><br />
       <b>In addition, input data must have mean of 0 and low variance.</b>
       <br />
-      Why can we not use same value for initial weights?<br />
-      &emsp; Because then each neuron think and produce same value making it
+      <br />
+      But why can we not just use the same value for initial weights?<br />
+      &emsp;Because then each neuron think and produce same value making it
       behaving like there is only 1 neuron in 1 layer which defeats the purpose
-      of having multiple neurons.
+      of having multiple neurons.<br /><br />
+      What is exploding gradient & vanishing gradient?<br />
+      &emsp;Exploding gradient is when gradient becomes too high due to large
+      error result divergence and overflowing of weights and biases.<br />
+      While vanishing gradient is when gradient becomes too low to the point
+      that weights or biases remain nearly unchanged, making it never converges
+      to a local minimum <br /><br />
+      How to choose learning rate?<br />
+      &emsp;The simplest way is to start with a low value, then slowly increase
+      it and see which learning rate gives best result. a learning rate too low
+      will cause vanishing gradient, while a learning rate too high will cause
+      exploding gradient.
+      <br /><br />
       <hr />
       <h2 id="ref">references</h2>
       <ul>

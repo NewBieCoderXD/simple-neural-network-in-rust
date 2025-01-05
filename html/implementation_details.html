@@ -30,23 +30,24 @@
   </head>
   <body>
     <main>
-      <h1>Implementation Details for My Simple Neural Network</h1>
+      <h1>Implementation Details for My Simple Neural Network(WIP)</h1>
       By <a href="https://github.com/NewBieCoderXD">NewBieCoderXD</a>, repo:
       <a href="https://github.com/NewBieCoderXD/simple-neural-network-in-rust"
         >https://github.com/NewBieCoderXD/simple-neural-network-in-rust</a
       ><br />
       Disclaimer: I'm, by no means, not a professional in computer science, just
       someone enthusiastic with calculus and Rust.<br />
-      PLEASE take everything in this repo with a gain of salt. If you believe
-      there is a mistake, please open issue on the github repo.<br />
+      PLEASE take everything in this repo with a gain of salt. If you notice an
+      issue or have suggestions, please feel free to open an issue on GitHub.<br />
+      Also excuse my poor English.<br />
 
       For mathematics details, please check
       <a
         href="https://newbiecoderxd.github.io/simple-neural-network-in-rust/html/math_details.html"
         >here</a
       ><br />
-      For Linear Algebra, I've implemented my own, because I want to.(Yes, my
-      code's performance suffers)
+      For linear algebra, you should use library, but I've implemented my own,
+      because I want to.(Yes, my code's performance suffers)
 
       <hr />
 
@@ -99,8 +100,8 @@ activations
       initialization(or most of other initializations) to have 0-mean input with
       low variance.<br />
       We can do this by subtracting by its mean, then dividing it by its
-      standard deviation. \[z=\frac{x-\mu}{\sigma}\] to do this, I store it mean
-      and standard deviation of input and output in the network.
+      standard deviation. \[z=\frac{x-\mu}{\sigma}\] to do this, I store the
+      mean and standard deviation of input and output in a network.
       <pre class="language-rust"><code>#[derive(Debug)]
 pub struct NeuralNetwork {
   pub layers: Vec&lt;NeuralNetworkLayer&gt;,
@@ -229,8 +230,8 @@ fn vec_standard_unscale(x: &amp;Vec&lt;f64&gt;, mean: &amp;Vec&lt;f64&gt;, sd: &
       ><code>let (left_splitted, right_splitted) = self.layers.split_at_mut(i);
 let curr_layer = &mut right_splitted[0];
 let left_layer = &left_splitted[i - 1];</code></pre>
-      This is for getting 2 references to different elements of vector using
-      split_at_mut
+      I used split_at_mut here to get 2 references to 2 parts of the
+      vector.(Because Rust doesn't directly allow it)<br />
       <br />
       Let's take a look at weight back propagation, Here’s the code for that.
       <pre class="language-rust"><code>fn back_propagate_weights(
@@ -376,7 +377,9 @@ impl ActivationFunction {
   output.push(i + j);
 }
 let output = vec![output];</code></pre>
-      Here I make the network learn number addition. Keep in mind that data shouldn't be ordered(in this case), it can confuse the model.(mae becomes MAE: 6322.935816579028💀)<br />
+      Here I make the network learn number addition. Keep in mind that data
+      shouldn't be ordered(in this case), it can confuse the model.(mae becomes
+      MAE: 6322.935816579028💀)<br />
       <pre class="language-rust"><code>for _ in 0..100 {
   let i = rng.gen::&lt;f64&gt;() * scale * 100.0;
   let j = rng.gen::&lt;f64&gt;() * scale * -1.0;
@@ -397,15 +400,33 @@ input: [1343.107104915474, -12.007633518636052], predicted: [1331.099471396839],
 input: [2898.429524218644, -27.90535919769659], predicted: [2870.524165020948], actual: [2870.5241650209473], error: [9.094947017729282e-13]
 input: [1178.9729251137826, -2.5582929622715356], predicted: [1176.4146321515116], actual: [1176.4146321515111], error: [4.547473508864641e-13]
 MAE: [1.0641798553479021e-12]</code></pre>
-      Would you look at that! it worked so well. <br>
-      
+      Would you look at that! it worked so well. <br />
+
       Let's train it to predict a non-linear function
       <h4 id="test-non-linear">Non Linear</h4>
-      I used multiplying function for this.
-      <pre class="language-rust"><code></code></pre>
-      Since it is non-linear function, we need to use non linear activation functions.
-      <pre class="language-rust"><code></code></pre>
-      To cover negative multiplication I random value from \([-25,25]\).
+      Let's use \(x^3\)
+      <pre class="language-rust"><code>let learning_rate = 0.07;
+let scale: f64 = 10.0;
+let range = 0.0..scale;
+let mut neural_network = NeuralNetwork::new(
+  &[
+    LayerDetails::new(1, ActivationFunction::Linear),
+    LayerDetails::new(5, ActivationFunction::Tanh),
+    LayerDetails::new(1, ActivationFunction::Linear),
+  ],
+  CostFunction::MeanSquaredError,
+);</code></pre>
+      Since it is non-linear function, we need to use non linear activation
+      functions like tanh.
+      <pre
+        class="language-rust"
+      ><code>input: [6.168957965084935], predicted: [235.60157387185356], actual: [234.76612572877272], error: [0.8354481430808391]
+input: [8.686713759546373], predicted: [655.7929106984478], actual: [655.490698316091], error: [0.3022123823568563]
+input: [9.135631714369657], predicted: [764.5672125894091], actual: [762.4576926401394], error: [2.1095199492697247]
+input: [6.696324303220753], predicted: [301.3184915040783], actual: [300.26826543108837], error: [1.0502260729899149]
+input: [8.165756731901206], predicted: [543.7670112908919], actual: [544.489253800095], error: [0.7222425092030562]
+MAE: [0.7881528826835437]</code></pre>
+      It worked quite well!
 
       <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-rust.min.js"></script>

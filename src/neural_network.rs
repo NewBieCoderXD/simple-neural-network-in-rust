@@ -93,7 +93,7 @@ impl NeuralNetwork {
         &curr_layer.biases,
       );
       curr_layer.activations = Some(curr_layer.activation_function.activate(&z_values));
-      curr_layer.z_values = Some(z_values.clone());
+      curr_layer.z_values = Some(z_values);
     }
     return self.layers.last().unwrap().activations.clone().unwrap();
   }

@@ -15,6 +15,7 @@ mod stat;
 fn adding() {
   let learning_rate = 0.005;
   let scale: f64 = 50.0;
+  let train_range = 0.0..scale;
   let mut neural_network = NeuralNetwork::new(
     &[
       LayerDetails::new(2, ActivationFunction::Linear),
@@ -31,22 +32,13 @@ fn adding() {
   let mut output = vec![];
 
   for _ in 1..100000 {
-    let i = rng.gen::<f64>() * scale;
-    let j = rng.gen::<f64>() * scale;
+    let i = rng.gen_range(train_range.clone());
+    let j = rng.gen_range(train_range.clone());
     input[0].push(i);
     input[1].push(j);
     output.push(i + j);
   }
 
-  // for i in 1..100 {
-  //   for j in 1..1000 {
-  //     let i = i as f64;
-  //     let j = j as f64;
-  //     input[0].push(i);
-  //     input[1].push(j);
-  //     output.push(i + j);
-  //   }
-  // }
   let output = vec![output];
 
   neural_network.train(input, output, learning_rate);
@@ -54,8 +46,8 @@ fn adding() {
   let mut input = vec![vec![], vec![]];
   let mut output = vec![];
   for _ in 0..100 {
-    let i = rng.gen::<f64>() * scale * 100.0;
-    let j = rng.gen::<f64>() * scale * -1.0;
+    let i = rng.gen_range(0.0..scale * 100.0);
+    let j = rng.gen_range(-scale..0.0);
     input[0].push(i);
     input[1].push(j);
     output.push(i + j);
@@ -68,8 +60,7 @@ fn adding() {
 fn cube() {
   let learning_rate = 0.07;
   let scale: f64 = 10.0;
-  // let range = - scale/2.0..scale/2.0;
-  let range = - 0.0..scale;
+  let range = 0.0..scale;
   let mut neural_network = NeuralNetwork::new(
     &[
       LayerDetails::new(1, ActivationFunction::Linear),
@@ -83,29 +74,23 @@ fn cube() {
 
   let mut rng = rand::thread_rng();
 
-  // let mut input = vec![vec![], vec![]];
   let mut input = vec![vec![]];
   let mut output = vec![];
 
   for _ in 1..100000 {
     let i = rng.gen_range(range.clone());
-    // let j = rng.gen_range(range.clone());
     input[0].push(i);
-    // input[1].push(j);
     output.push(i.powi(3));
   }
   let output = vec![output];
 
   neural_network.train(input, output, learning_rate);
 
-  // let mut input = vec![vec![], vec![]];
   let mut input = vec![vec![]];
   let mut output = vec![];
   for _ in 0..100 {
     let i = rng.gen_range(range.clone());
-    // let j = rng.gen_range(range.clone());
     input[0].push(i);
-    // input[1].push(j);
     output.push(i.powi(3));
   }
   let output = vec![output];
@@ -113,6 +98,6 @@ fn cube() {
 }
 
 fn main() {
-  // adding();
-  cube();
+  adding();
+  // cube();
 }
