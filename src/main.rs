@@ -23,7 +23,7 @@ fn adding() {
     CostFunction::MeanSquaredError,
   );
 
-  println!("{:#?}", neural_network);
+  // println!("{:#?}", neural_network);
 
   let mut rng = rand::thread_rng();
 
@@ -37,6 +37,16 @@ fn adding() {
     input[1].push(j);
     output.push(i + j);
   }
+
+  // for i in 1..100 {
+  //   for j in 1..1000 {
+  //     let i = i as f64;
+  //     let j = j as f64;
+  //     input[0].push(i);
+  //     input[1].push(j);
+  //     output.push(i + j);
+  //   }
+  // }
   let output = vec![output];
 
   neural_network.train(input, output, learning_rate);
@@ -51,54 +61,58 @@ fn adding() {
     output.push(i + j);
   }
   let output = vec![output];
-  println!("R2: {:?}", neural_network.test(&input, &output));
+  println!("MAE: {:?}", neural_network.test(&input, &output));
 }
 
 #[allow(dead_code)]
-fn multiplying() {
-  let learning_rate = 0.01;
-  let scale: f64 = 50.0;
+fn cube() {
+  let learning_rate = 0.07;
+  let scale: f64 = 10.0;
+  // let range = - scale/2.0..scale/2.0;
+  let range = - 0.0..scale;
   let mut neural_network = NeuralNetwork::new(
     &[
-      LayerDetails::new(2, ActivationFunction::Linear),
-      LayerDetails::new(10, ActivationFunction::Sigmoid),
-      LayerDetails::new(10, ActivationFunction::Tanh),
+      LayerDetails::new(1, ActivationFunction::Linear),
+      LayerDetails::new(5, ActivationFunction::Tanh),
       LayerDetails::new(1, ActivationFunction::Linear),
     ],
     CostFunction::MeanSquaredError,
   );
 
-  println!("{:#?}", neural_network);
+  // println!("{:#?}", neural_network);
 
   let mut rng = rand::thread_rng();
 
-  let mut input = vec![vec![], vec![]];
+  // let mut input = vec![vec![], vec![]];
+  let mut input = vec![vec![]];
   let mut output = vec![];
 
   for _ in 1..100000 {
-    let i = rng.gen::<f64>() * scale - scale / 2.0;
-    let j = rng.gen::<f64>() * scale - scale / 2.0;
+    let i = rng.gen_range(range.clone());
+    // let j = rng.gen_range(range.clone());
     input[0].push(i);
-    input[1].push(j);
-    output.push(i * j);
+    // input[1].push(j);
+    output.push(i.powi(3));
   }
   let output = vec![output];
 
   neural_network.train(input, output, learning_rate);
 
-  let mut input = vec![vec![], vec![]];
+  // let mut input = vec![vec![], vec![]];
+  let mut input = vec![vec![]];
   let mut output = vec![];
   for _ in 0..100 {
-    let i = rng.gen::<f64>() * scale - scale / 2.0;
-    let j = rng.gen::<f64>() * scale - scale / 2.0;
+    let i = rng.gen_range(range.clone());
+    // let j = rng.gen_range(range.clone());
     input[0].push(i);
-    input[1].push(j);
-    output.push(i * j);
+    // input[1].push(j);
+    output.push(i.powi(3));
   }
   let output = vec![output];
-  println!("R2: {:?}", neural_network.test(&input, &output));
+  println!("MAE: {:?}", neural_network.test(&input, &output));
 }
 
 fn main() {
-  multiplying();
+  // adding();
+  cube();
 }

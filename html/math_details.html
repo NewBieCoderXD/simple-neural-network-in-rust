@@ -29,12 +29,11 @@
       By <a href="https://github.com/NewBieCoderXD">NewBieCoderXD</a>, repo:
       <a href="https://github.com/NewBieCoderXD/simple-neural-network-in-rust"
         >https://github.com/NewBieCoderXD/simple-neural-network-in-rust</a
-      >
+      ><br />
       Disclaimer: I'm, by no means, not a professional in computer science, just
       someone enthusiastic with calculus and Rust.<br />
       PLEASE take everything in this repo with a gain of salt. If you believe
-      there is a mistake, please open issue on the github repo.
-
+      there is a mistake, please open issue on the github repo.<br />
       For implementation details, please check
       <a
         href="https://newbiecoderxd.github.io/simple-neural-network-in-rust/html/implementation_details.html"
@@ -95,13 +94,12 @@
           vector/matrix form: \(b^{[l]}\)
         </li>
         <li>\(g^{[l]}(x)\) means activation function of \(l\)-th layer</li>
+        <li>\(n^{[l]}\) means number of neurons in \(l\)-th layer</li>
         <li>\(L\) means number of layers(both input,hidden,output)</li>
         <li>\(\hat y\) or \(a^{[L]}\) means predicted output</li>
       </ul>
       <b>Note:</b> \(i\)-th neuron is counted from top to bottom, while \(l\)-th
       layer is counted from left to right.
-
-      <hr />
 
       <hr />
       <h2 id="notations">Notations</h2>
@@ -299,17 +297,17 @@
         a_i^{[l-1]} \end{align} \]
       </div>
       <div>
-        \[ \nabla_{W^{[l]}} J(y,\hat y) = \begin{bmatrix} a_0^{[l-1]}
-        \delta_0^{[l]} & a_1^{[l-1]} \delta_0^{[l]} & a_2^{[l-1]} \delta_0^{[l]}
+        \[ \nabla_{W^{[l]}} J(y,\hat y) = \begin{bmatrix} a_1^{[l-1]}
+        \delta_1^{[l]} & a_2^{[l-1]} \delta_1^{[l]} & a_3^{[l-1]} \delta_1^{[l]}
         & ... \\<br />
-        a_0^{[l-1]} \delta_1^{[l]} & a_1^{[l-1]} \delta_1^{[l]} & a_2^{[l-1]}
+        a_1^{[l-1]} \delta_2^{[l]} & a_2^{[l-1]} \delta_2^{[l]} & a_3^{[l-1]}
         \delta_1^{[l]}& ... \\<br />
-        a_0^{[l-1]} \delta_2^{[l]} & a_1^{[l-1]} \delta_2^{[l]} & a_2^{[l-1]}
-        \delta_2^{[l]}& ... \\<br />
+        a_1^{[l-1]} \delta_3^{[l]} & a_2^{[l-1]} \delta_3^{[l]} & a_3^{[l-1]}
+        \delta_3^{[l]}& ... \\<br />
         ... & ... & ... & ... \\<br />
         \end{bmatrix} \]
       </div>
-      <div>\[ \nabla_{W^{[l]}} J(y,\hat y) = \delta^{[l]} a^{[l-1]} \]</div>
+      <div>\[ \nabla_{W^{[l]}} J(y,\hat y) = \delta^{[l]} (a^{[l-1]})^T \]</div>
       and
       <div>
         \[ \begin{align} \frac{\partial J(y,\hat y)}{\partial
@@ -336,7 +334,7 @@
       vector form:<br />
       <div>
         \[\frac{\partial J(y,\hat y)}{\partial z^{[L]}}=\frac{\partial J(y,\hat
-        y)}{\partial a^{[L]}} \cdot g^{\prime [L]} \bigl(z^{[L]} \bigr)\]
+        y)}{\partial a^{[L]}} \odot g^{\prime [L]} \bigl(z^{[L]} \bigr)\]
       </div>
       or
       <div>
@@ -355,34 +353,51 @@
         &= \sum_{j} \delta_j^{[l+1]} \cdot \frac{\partial \left( \sum_k W_{kj}^{[l+1]} \cdot a_k^{[l]} + b_j^{[l+1]} \right)}{\partial a_i^{[l]}} \cdot \frac{\partial a_i^{[l]}}{\partial z_i^{[l]}} \\<br>
         &= \sum_{j} \delta_j^{[l+1]} \cdot W_{ij}^{[l+1]} \cdot g^{\prime [l]} \bigl(z_i^{[l]} \bigr) \\<br>
         &=\begin{bmatrix}
-          g^{\prime [l]} \bigl(z_0^{[l]} \bigr) \\<br>
           g^{\prime [l]} \bigl(z_1^{[l]} \bigr) \\<br>
+          g^{\prime [l]} \bigl(z_2^{[l]} \bigr) \\<br>
           ...
         \end{bmatrix} \odot
         \begin{bmatrix}
-          \sum_{j} \delta_j^{[l+1]} \cdot W_{0,j}^{[l+1]} \\<br>
           \sum_{j} \delta_j^{[l+1]} \cdot W_{1,j}^{[l+1]} \\<br>
+          \sum_{j} \delta_j^{[l+1]} \cdot W_{2,j}^{[l+1]} \\<br>
           ...
         \end{bmatrix} \\<br>
         &=\begin{bmatrix}
-          g^{\prime [l]} \bigl(z_0^{[l]} \bigr) \\<br>
           g^{\prime [l]} \bigl(z_1^{[l]} \bigr) \\<br>
+          g^{\prime [l]} \bigl(z_2^{[l]} \bigr) \\<br>
           ...
         \end{bmatrix} \odot
         \begin{bmatrix}
-          W_{0,0}^{[l+1]} &  W_{0,1}^{[l+1]} & ... \\<br>
-          W_{1,0}^{[l+1]} &  W_{1,1}^{[l+1]} & ... \\<br>
+          W_{1,1}^{[l+1]} &  W_{1,2}^{[l+1]} & ... \\<br>
+          W_{2,1}^{[l+1]} &  W_{2,2}^{[l+1]} & ... \\<br>
           ... & ... & ...
         \end{bmatrix} \cdot
         \begin{bmatrix}
-          \delta_j^{[l+1]} \\<br>
-          \delta_j^{[l+1]} \\<br>
+          \delta_1^{[l+1]} \\<br>
+          \delta_2^{[l+1]} \\<br>
           ...
         \end{bmatrix} \\<br>
         &=g^{\prime [l]} \bigl(z^{[l]} \bigr) \odot \left (W^{[l+1]} \right)^T \cdot \delta^{[l+1]} \\<br>
         \delta^{[l-1]} &=g^{\prime [l-1]} \bigl(z^{[l-1]} \bigr) \odot \left (W^{[l]} \right)^T \cdot \delta^{[l]}
         \end{align} \]
       </div>
+      Conclusion<br />
+      <div>
+        \[W_{i,j (new)}^{[l]}=W_{i,j (old)}^{[l]}-\alpha \cdot \frac{\partial
+        J(y,\hat y)}{\partial W_{i,j}^{[l]}}\]
+      </div>
+      <div>\[\nabla_{W^{[l]}} J(y,\hat y) = \delta^{[l]} (a^{[l-1]})^T\]</div>
+      <div>
+        \[W_{new}^{[l]}=W_{old}^{[l]}-\alpha \cdot \delta^{[l]} \cdot
+        (a^{[l-1]})^T\]
+      </div>
+      and
+      <div>
+        \[b_{i (new)}^{[l]}=b_{i (old)}^{[l]}-\alpha \cdot \frac{\partial
+        J(y,\hat y)}{\partial b_i^{[l]}}\]
+      </div>
+      <div>\[\nabla_{b^{[l]}} J(y,\hat y) = \delta^{[l]}\]</div>
+      <div>\[b_{new}^{[l]}=b_{old}^{[l]}-\alpha \cdot \delta^{[l]}\]</div>
       Yes! we finally finish back propagation, now what?<br />
       Well.. what would be initial weights or biases?
 
@@ -515,7 +530,7 @@
       used harmonic mean which gives simplest form.
       <div>\[ \frac{2}{n^{[l]}+n^{[l-1]}} \]</div>
       while arithmetic mean gives
-      <div>\[\frac{n^{[l]}+n^{[l+1]}}{2n^{[l]}n^{[l-1]}}\]</div>
+      <div>\[\frac{n^{[l]}+n^{[l-1]}}{2n^{[l]}n^{[l-1]}}\]</div>
       To conclude, initial weights are symmetrically distributed random
       variables with mean of 0, and variance of \(\frac{2}{n^{[l]}+n^{[l-1]}}\).
       <br />
@@ -529,19 +544,19 @@
         \end{align}\]
       </div>
       <div>
-        \[\begin{align} Var(W)=\frac{(a+b)^2}{12}&=\frac{2}{n^{[l]}+n^{[l+1]}}
+        \[\begin{align} Var(W)=\frac{(a+b)^2}{12}&=\frac{2}{n^{[l]}+n^{[l-1]}}
         \\<br />
-        \frac{(2a)^2}{12}&=\frac{2}{n^{[l]}+n^{[l+1]}} \\<br />
-        a&=-\sqrt{\frac{6}{n^{[l]}+n^{[l+1]}}} \\<br />
+        \frac{(2a)^2}{12}&=\frac{2}{n^{[l]}+n^{[l-1]}} \\<br />
+        a&=-\sqrt{\frac{6}{n^{[l]}+n^{[l-1]}}} \\<br />
         \end{align} \]
       </div>
       <div>
         \[ W \sim
-        U(-\sqrt{\frac{6}{n^{[l]}+n^{[l+1]}}},\sqrt{\frac{6}{n^{[l]}+n^{[l+1]}}})
+        U \left(-\sqrt{\frac{6}{n^{[l]}+n^{[l-1]}}},\sqrt{\frac{6}{n^{[l]}+n^{[l-1]}}} \right)
         \]
       </div>
       In case of normal distribution:
-      <div>\[ W \sim N(0,\frac{2}{n^{[l]}+n^{[l-1]}}) \]</div>
+      <div>\[ W \sim N \left(0,\frac{2}{n^{[l]}+n^{[l-1]}} \right) \]</div>
       <b
         >Note that Xavier initialization only works for activation functions
         that \(g(z) \approx z\) when z is small, and is a symmetric odd function
@@ -584,10 +599,14 @@
           really helped me out.
         </li>
         <li>
-          <a href="https://www.cdnfonts.com/palatino-lt-black.font">font Palatino LT Light</a>
+          <a href="https://www.cdnfonts.com/palatino-lt-black.font"
+            >font Palatino LT Light</a
+          >
         </li>
         <li>
-          <a href="https://www.mathjax.org/">MathJax (JavaScript mathematics displaying engine)</a>
+          <a href="https://www.mathjax.org/"
+            >MathJax (JavaScript mathematics displaying engine)</a
+          >
         </li>
       </ul>
     </main>

@@ -8,6 +8,7 @@ pub fn mean_and_standard_deviation(data: &Vec<f64>) -> (f64, f64) {
     let delta2 = data[i] - mean;
     m2 += delta * delta2;
   }
+  // println!("m2: {}",m2);
   let n = data.len();
   return (mean, (m2 / (n - 1) as f64).sqrt());
 }

@@ -1,8 +1,7 @@
 use std::fmt::Debug;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone,Copy)]
 pub enum ActivationFunction {
-  ReLU,
   Linear,
   Sigmoid,
   Tanh,
@@ -13,7 +12,6 @@ impl ActivationFunction {
   pub fn activate(&self, value: &Vec<f64>) -> Vec<f64> {
     return match self {
       Self::Linear => value.iter().cloned().collect(),
-      Self::ReLU => value.iter().map(|value| value.max(0.0)).collect(),
       Self::Sigmoid => value
         .iter()
         .map(|&value| 1.0 / (1.0 + std::f64::consts::E.powf(-value)))
@@ -29,10 +27,6 @@ impl ActivationFunction {
   pub fn derivative(&self, value: &Vec<f64>) -> Vec<f64> {
     return match self {
       Self::Linear => vec![1.0; value.len()],
-      Self::ReLU => value
-        .iter()
-        .map(|&value| if value > 0.0 { 1.0 } else { 0.0 })
-        .collect(),
       Self::Sigmoid => value
         .iter()
         .map(|&value| {

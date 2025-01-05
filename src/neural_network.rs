@@ -1,5 +1,5 @@
 use crate::linear_algebra::{
-  add_matrices, add_vector, get_row, matrix_dot_vector, minus_vector, powi_vector,
+  add_matrices, add_vector, get_row, matrix_dot_vector, minus_vector,
   scalar_multiply_matrix, scalar_multiply_vector, transpose_matrix, vector_dot_transposed_vector,
 };
 use crate::stat::mean_and_standard_deviation;
@@ -22,11 +22,9 @@ pub struct NeuralNetwork {
 
 impl NeuralNetwork {
   // Xavier Initialization
-  fn random_vector(previous_size: usize, current_size: usize) -> Vec<f64> {
+  fn random_xavier(previous_size: usize, current_size: usize) -> f64 {
     let x = f64::sqrt(6.0 / (current_size + previous_size) as f64);
-    (0..previous_size)
-      .map(|_index| rand::thread_rng().gen_range(-x..x))
-      .collect()
+    return rand::thread_rng().gen_range(-x..x);
   }
   pub fn new(layers_details: &[LayerDetails], cost_function: CostFunction) -> NeuralNetwork {
     assert!(
@@ -51,8 +49,14 @@ impl NeuralNetwork {
       let weights;
       let biases;
       if index != 0 {
-        weights = (0..layer_details.layer_size)
-          .map(|_| Self::random_vector(layers[index - 1].size, layer_details.layer_size))
+        let curr_layer_size = layer_details.layer_size;
+        let prev_layer_size = layers[index - 1].size;
+        weights = (0..curr_layer_size)
+          .map(|_| {
+            (0..prev_layer_size)
+              .map(|_| Self::random_xavier(prev_layer_size, curr_layer_size))
+              .collect()
+          })
           .collect();
         biases = vec![0.0; layer_details.layer_size];
       } else {
@@ -63,7 +67,7 @@ impl NeuralNetwork {
         biases,
         weights,
         size: layer_details.layer_size,
-        activation_function: layer_details.activation_function.clone(),
+        activation_function: layer_details.activation_function,
         activations: None,
         z_values: None,
       };
@@ -137,6 +141,8 @@ impl NeuralNetwork {
     self.y_mean = Some(y_mean);
     self.y_sd = Some(y_sd);
 
+    // println!("x_mean: {:?}, x_sd: {:?}, y_mean: {:?}, y_sd: {:?}",self.x_mean,self.x_sd,self.y_mean,self.y_sd);
+
     for row in 0..x[0].len() {
       let x_of_row = x.iter().map(|series| series[row]).collect::<Vec<f64>>();
       let y_of_row = y.iter().map(|series| series[row]).collect::<Vec<f64>>();
@@ -156,11 +162,11 @@ impl NeuralNetwork {
         self.y_mean.as_ref().unwrap(),
         self.y_sd.as_ref().unwrap(),
       );
-      if row % 1000 == 0 {
+      if row % (x[0].len()/10) == 0 {
         let error = self.calculate_error(&y_of_row, &unscaled_predicted);
         println!(
-          "x: {:?}, y: {:?}, predicted: {:?}, error: {}",
-          x_of_row, y_of_row, unscaled_predicted, error
+          "x: {:?}, y: {:?}, predicted: {:?}, error: {}, scaled_error: {}",
+          x_of_row, y_of_row, unscaled_predicted, error, self.calculate_error(&scaled_y, &predicted)
         );
       }
       self.back_propagate(&scaled_y, learning_rate);
@@ -237,36 +243,54 @@ impl NeuralNetwork {
   }
 
   pub fn test(&mut self, input: &Vec<Vec<f64>>, output: &Vec<Vec<f64>>) -> Vec<f64> {
-    let mut rss = vec![0.0; output.len()];
+    let mut mae = vec![0.0; output.len()];
     for row_index in 0..input[0].len() {
       let test_sample = get_row(input, row_index);
       let predicted = self.predict(&test_sample);
 
-      let curr_rss = powi_vector(
-        &add_vector(&get_row(output, row_index), &minus_vector(&predicted)),
-        2,
+      let error = add_vector(&predicted, &minus_vector(&get_row(output, row_index))).iter().map(|x|x.abs()).collect();
+      mae = add_vector(
+        &mae,
+        &error
       );
-      rss = add_vector(&rss, &curr_rss);
 
-      println!(
-        "input: {input:?}, predicted: {predicted:?}, actual: {actual:?}, RSS: {curr_rss:?}",
-        input = get_row(input, row_index),
-        actual = get_row(output, row_index)
-      );
+        println!(
+          "input: {input:?}, predicted: {predicted:?}, actual: {actual:?}, error: {error:?}",
+          input = get_row(input, row_index),
+          actual = get_row(output, row_index)
+        );
     }
+    return scalar_multiply_vector(1.0 / output[0].len() as f64, &mae);
+    // let mut rss = vec![0.0; output.len()];
+    // for row_index in 0..input[0].len() {
+    //   let test_sample = get_row(input, row_index);
+    //   let predicted = self.predict(&test_sample);
 
-    let tss = output
-      .iter()
-      .map(|column| {
-        let sd = mean_and_standard_deviation(column).1;
-        let tss = sd.powi(2) * (column.len() - 1) as f64;
-        return tss;
-      })
-      .collect::<Vec<f64>>();
+    //   let curr_rss = powi_vector(
+    //     &add_vector(&get_row(output, row_index), &minus_vector(&predicted)),
+    //     2,
+    //   );
+    //   rss = add_vector(&rss, &curr_rss);
 
-    return add_vector(
-      &vec![1.0; output.len()],
-      &minus_vector(&hadamard_product!(&rss, powi_vector(&tss, -1))),
-    );
+    //   println!(
+    //     "input: {input:?}, predicted: {predicted:?}, actual: {actual:?}, RSS: {curr_rss:?}",
+    //     input = get_row(input, row_index),
+    //     actual = get_row(output, row_index)
+    //   );
+    // }
+
+    // let tss = output
+    //   .iter()
+    //   .map(|column| {
+    //     let sd = mean_and_standard_deviation(column).1;
+    //     let tss = sd.powi(2) * (column.len() - 1) as f64;
+    //     return tss;
+    //   })
+    //   .collect::<Vec<f64>>();
+    // println!("tss: {:?}",tss);
+    // return add_vector(
+    //   &vec![1.0; output.len()],
+    //   &minus_vector(&hadamard_product!(&rss, powi_vector(&tss, -1))),
+    // );
   }
 }
