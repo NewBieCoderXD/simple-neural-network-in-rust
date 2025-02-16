@@ -2,7 +2,7 @@
 
 The purpose is to study neural network and gaining experience in Rust
 
-I decided to create a documentation of how to mathematics details for educational purpose in [this page](https://newbiecoderxd.github.io/simple-neural-network-in-rust/html/math_details.html), and implementation details in [this page](https://newbiecoderxd.github.io/simple-neural-network-in-rust/html/implementation_details.html).
+I decided to create a documentation of how to mathematics details for educational purpose in [this page](https://newbiecoderxd.github.io/simple-neural-network-in-rust/math_details/), and implementation details in [this page](https://newbiecoderxd.github.io/simple-neural-network-in-rust/implementation_details/).
 
 **Please note that this is according to my understanding of the topic, so please proceed with caution.**
 
