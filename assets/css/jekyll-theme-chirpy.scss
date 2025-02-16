@@ -1,8 +1,9 @@
 ---
 ---
 
+/* prettier-ignore */
 @use 'main
-{%- if jekyll.environment == ' production ' -%}
+{%- if jekyll.environment == 'production' -%}
   .bundle
 {%- endif -%}
 ';
@@ -22,7 +23,7 @@ html[data-mode='light'] {
   --main-border-color: rgb(65, 65, 65);
 }
 
-@import url("https://fonts.cdnfonts.com/css/palatino-lt-black");
+@import url('https://fonts.cdnfonts.com/css/palatino-lt-black');
 
 .content main,
 .content main *:not(pre *):not(mjx-container *) {
