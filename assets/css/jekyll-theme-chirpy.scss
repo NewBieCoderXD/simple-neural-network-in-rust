@@ -2,18 +2,37 @@
 ---
 
 @use 'main
-{%- if jekyll.environment == 'production' -%}
+{%- if jekyll.environment == ' production ' -%}
   .bundle
 {%- endif -%}
 ';
 
-html:not([data-mode]), html[data-mode="dark"] {
+html:not([data-mode]),
+html[data-mode='dark'] {
   --site-title-color: rgb(255, 255, 255, 0.95) !important;
+  --text-color: rgb(205, 205, 205);
+  --heading-color: rgb(237, 237, 237);
+  --main-border-color: rgb(190, 190, 190);
 }
+
+html[data-mode='light'] {
+  --site-title-color: rgba(0, 0, 0, 0.95) !important;
+  --text-color: rgb(40, 40, 40);
+  --heading-color: rgb(18, 18, 18);
+  --main-border-color: rgb(65, 65, 65);
+}
+
+@import url("https://fonts.cdnfonts.com/css/palatino-lt-black");
 
 .content main,
 .content main *:not(pre *):not(mjx-container *) {
-  font-family: "Palatino LT Light", sans-serif;
+  font-family: 'Palatino LT', sans-serif;
 }
 
-/* append your custom style below */
+#sidebar #avatar img:hover {
+  transform: scale(1) !important;
+}
+
+#toc-wrapper ul .is-active-link::before {
+  width: 2px;
+}

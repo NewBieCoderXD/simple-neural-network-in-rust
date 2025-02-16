@@ -5,10 +5,12 @@ icon: fas fa-gear
 order: 2
 toc: true
 math: true
-title: "Implementation Details"
-date:   2025-02-15 16:38:15 +0700
-description: Implementation Details for My Simple Neural Network
+title: Implementation Details
+date: 2025-02-15
+last_modified_at: 2025-02-16
+description: Rust Implementation Details for My Simple Neural Network
 ---
+
 <!DOCTYPE html>
 <html lang="en">
   {% seo %}
@@ -17,15 +19,7 @@ description: Implementation Details for My Simple Neural Network
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Making a neural network from scratch</title>
-    <style>
-      @import url("https://fonts.cdnfonts.com/css/palatino-lt-black");
-      hr {
-        background-color: blue;
-        height: 3px;
-        margin-top: 10px;
-        margin-bottom: 10px;
-      }
-    </style>
+    <style></style>
     <link
       href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css"
       rel="stylesheet"
@@ -33,22 +27,15 @@ description: Implementation Details for My Simple Neural Network
   </head>
   <body>
     <main>
-      <h1>Implementation Details for My Simple Neural Network(WIP)</h1>
-      By <a href="https://github.com/NewBieCoderXD">NewBieCoderXD</a>, repo:
-      <a href="https://github.com/NewBieCoderXD/simple-neural-network-in-rust"
-        >https://github.com/NewBieCoderXD/simple-neural-network-in-rust</a
-      ><br />
-      Disclaimer: I'm, by no means, not a professional in computer science, just
-      someone enthusiastic with calculus and Rust.<br />
-      PLEASE take everything in this repo with a gain of salt. If you notice an
-      issue or have suggestions, please feel free to open an issue on GitHub.<br />
-      Also excuse my poor English.<br />
-
-      For mathematics details, please check
-      <a
-        href="/simple-neural-network-in-rust/math_details"
-        >here</a
-      ><br />
+      <h2 id="disclaimer">Disclaimer</h2>
+      I'm, by no means, not a professional in computer science, just someone
+      enthusiastic with calculus and Rust.<br />
+      <b>PLEASE</b> take everything in this repo with a gain of salt. If you
+      notice an issue or have suggestions, please feel free to open an issue on
+      GitHub.<br />
+      Also excuse my poor English.
+      <br />
+      <br />
       For linear algebra, you should use library, but I've implemented my own,
       because I want to.(Yes, my code's performance suffers)
 
@@ -381,8 +368,8 @@ impl ActivationFunction {
 }
 let output = vec![output];</code></pre>
       Here I make the network learn number addition. Keep in mind that data
-      shouldn't be ordered(in this case), it can confuse the model.(mae becomes
-      MAE: 6322.935816579028💀)<br />
+      shouldn't be ordered(in this case), it can confuse the model.(MAE becomes
+      6322.935816579028💀)<br />
       <pre class="language-rust"><code>for _ in 0..100 {
   let i = rng.gen::&lt;f64&gt;() * scale * 100.0;
   let j = rng.gen::&lt;f64&gt;() * scale * -1.0;
@@ -396,7 +383,7 @@ println!("R2: {:?}", neural_network.test(&input, &output));</code></pre>
       add some scaling.<br />
       let's look at the result
       <pre
-        class="language-"
+        class="language-rust"
       ><code>input: [3393.4792105101315, -15.737007729155644], predicted: [3377.742202780977], actual: [3377.7422027809757], error: [1.3642420526593924e-12]
 input: [1174.3041524045357, -37.042016652788206], predicted: [1137.2621357517482], actual: [1137.2621357517476], error: [6.821210263296962e-13]
 input: [1343.107104915474, -12.007633518636052], predicted: [1331.099471396839], actual: [1331.099471396838], error: [9.094947017729282e-13]
