@@ -67,8 +67,8 @@ pub struct NeuralNetwork {
 
       <h2 id="cost-function">Cost Function Implementation</h2>
       I implemented MSE(mean squared error) as a cost function<br />
-      equation for MSE: \[J(y,\hat y)=\frac{1}{n^{L}}\sum_{j=1}^{n^{[L]}}
-      (y_i-\hat y_i)^2\] code for MSE:
+      equation for MSE: \[J(y,\hat y)=MSE(y,\hat
+      y)=\frac{1}{n^{[L]}}\sum_{j=1}^{n^{[L]}} (y_i-\hat y_i)^2\] code for MSE:
       <pre
         class="language-rust"
       ><code>assert_eq!(actual.len(), predicted.len());
@@ -81,8 +81,9 @@ for i in 0..size {
 result /= size as f64;
 return result;</code></pre>
 
-      equation for derivative of MSE: \[\frac{\partial J(y,\hat y)}{\partial
-      y_i}=\frac{2}{n^{L}}(y_i-\hat y_i)\] code for derivative of MSE:
+      equation for derivative of MSE: \[\frac{\partial MSE(y,\hat y)}{\partial
+      y_i}=\frac{\partial J(y,\hat y)}{\partial y_i}=\frac{2}{n^{[L]}}(y_i-\hat
+      y_i)\] code for derivative of MSE:
       <pre
         class="language-rust"
       ><code>assert_eq!(activations.len(), actual.len());

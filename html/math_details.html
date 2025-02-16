@@ -176,6 +176,29 @@
       <hr />
 
       <h2 id="cost-function">Cost Function</h2>
+      Function that shows how wrong predicted output is, in other words, error.
+      <br />
+      We use \(J(y,\hat y)\) or \(C(y,\hat y)\) to represent a cost function
+      <br />
+      There are many cost functions, each has its own use case, but for
+      Non-logistic supervised learning, we mostly use MSE(Mean Squared Error)
+      which is defined as<br />
+      <div>\[MSE(y,\hat y)=\frac{1}{n} \sum_{i=1}^{n^{[L]}} (y_i-\hat y_i)^2 \]</div>
+      It's literally a mean of squared errors. <br> Now, let's find derivative with
+      respect to activations \(\hat y_i\), we are gonna need later it when implementing a neuron network.
+      <br />
+      <div>
+        \[
+        \frac{\partial J(y_i,\hat y_i)}{\partial\hat y_i}=\frac{\partial
+        MSE(y_i,\hat y_i)}{\partial\hat y_i}=\frac{2}{n^{[L]}} (y_i-\hat y_i)
+        \]
+      </div>
+      We can write it in a vector form
+      <div>
+        \[
+        \nabla_{\hat y} MSE(y,\hat y)=\frac{2}{n^{[L]}} (y-\hat y)
+        \]
+      </div>
 
       <hr />
 
