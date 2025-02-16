@@ -1,0 +1,42 @@
+---
+layout: default
+---
+{%- capture math_details -%}
+title: "math details",href=math_details
+{%- endcapture -%}
+{% assign posts = math_details | split: ',' %}
+<article class="card-wrapper card">
+  {% for post in posts %}
+  <a href={{post.href}} class="post-preview row g-0 flex-md-row-reverse">
+    {% assign card_body_col = '12' %}
+
+    <div class="col-md-{{ card_body_col }}">
+      <div class="card-body d-flex flex-column">
+        <h1 class="card-title my-2 mt-md-0">{{ post.title }}</h1>
+
+        <!-- <div class="card-text content mt-0 mb-3">
+          <p>{% include post-description.html %}</p>
+        </div> -->
+
+        <div class="post-meta flex-grow-1 d-flex align-items-end">
+          <div class="me-auto"></div>
+            <!-- posted date -->
+            <!-- <i class="far fa-calendar fa-fw me-1"></i>
+            {% include datetime.html date=post.date lang=lang %} -->
+
+          <!-- {% if post.pin %}
+            <div class="pin ms-1">
+              <i class="fas fa-thumbtack fa-fw"></i>
+              <span>{{ site.data.locales[lang].post.pin_prompt }}</span>
+            </div>
+          {% endif %} -->
+        </div>
+        <!-- .post-meta -->
+      </div>
+      <!-- .card-body -->
+    </div>
+  </a>
+  {% endfor %}
+</article>
+<!-- <a href="math_details">math details</a> <br>
+<a href="implementation_details">implementation details</a> -->

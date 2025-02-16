@@ -1,0 +1,439 @@
+---
+layout: post
+# the default layout is 'page'
+icon: fas fa-gear
+order: 2
+toc: true
+math: true
+title: "Implementation Details"
+date:   2025-02-15 16:38:15 +0700
+---
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Making a neural network from scratch</title>
+    <style>
+      @import url("https://fonts.cdnfonts.com/css/palatino-lt-black");
+      hr {
+        background-color: blue;
+        height: 3px;
+        margin-top: 10px;
+        margin-bottom: 10px;
+      }
+      .content main, .content main *:not(pre *) {
+        font-family: "Palatino LT Light", sans-serif;
+      }
+    </style>
+    <link
+      href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <main>
+      <h1>Implementation Details for My Simple Neural Network(WIP)</h1>
+      By <a href="https://github.com/NewBieCoderXD">NewBieCoderXD</a>, repo:
+      <a href="https://github.com/NewBieCoderXD/simple-neural-network-in-rust"
+        >https://github.com/NewBieCoderXD/simple-neural-network-in-rust</a
+      ><br />
+      Disclaimer: I'm, by no means, not a professional in computer science, just
+      someone enthusiastic with calculus and Rust.<br />
+      PLEASE take everything in this repo with a gain of salt. If you notice an
+      issue or have suggestions, please feel free to open an issue on GitHub.<br />
+      Also excuse my poor English.<br />
+
+      For mathematics details, please check
+      <a
+        href="https://newbiecoderxd.github.io/simple-neural-network-in-rust/html/math_details.html"
+        >here</a
+      ><br />
+      For linear algebra, you should use library, but I've implemented my own,
+      because I want to.(Yes, my code's performance suffers)
+
+      <hr />
+
+      <h2 id="neural-network">Neural Network Implementation</h2>
+      <pre class="language-rust"><code>#[derive(Debug)]
+pub struct NeuralNetwork {
+  pub layers: Vec&lt;NeuralNetworkLayer&gt;,
+  cost_function: CostFunction,
+  x_mean: Option&lt;Vec&lt;f64&gt;&gt;,
+  x_sd: Option&lt;Vec&lt;f64&gt;&gt;,
+  y_mean: Option&lt;Vec&lt;f64&gt;&gt;,
+  y_sd: Option&lt;Vec&lt;f64&gt;&gt;,
+}
+</code></pre>
+      <hr />
+
+      <h2 id="cost-function">Cost Function Implementation</h2>
+      I implemented MSE(mean squared error) as a cost function<br />
+      equation for MSE: \[J(y,\hat y)=MSE(y,\hat
+      y)=\frac{1}{n^{[L]}}\sum_{j=1}^{n^{[L]}} (y_i-\hat y_i)^2\] code for MSE:
+      <pre
+        class="language-rust"
+      ><code>assert_eq!(actual.len(), predicted.len());
+let size = actual.len();
+let mut result = 0.0;
+for i in 0..size {
+  // println!(&quot;{} {}&quot;,actual[i],predicted[i]);
+  result += (actual[i] - predicted[i]).powf(2.0);
+}
+result /= size as f64;
+return result;</code></pre>
+
+      equation for derivative of MSE: \[\frac{\partial MSE(y,\hat y)}{\partial
+      y_i}=\frac{\partial J(y,\hat y)}{\partial y_i}=\frac{2}{n^{[L]}}(y_i-\hat
+      y_i)\] code for derivative of MSE:
+      <pre
+        class="language-rust"
+      ><code>assert_eq!(activations.len(), actual.len());
+activations
+  .iter()
+  .zip(actual.iter())
+  .map(|(activation, actual)| 2.0 * (activation - actual) / activations.len() as f64)
+  .collect()</code></pre>
+
+      <hr />
+
+      <h2 id="forward-propagation">Forward Propagation Implementation</h2>
+      Before feeding data into our neural network, we need to normalize it to
+      make its mean 0 and variance 1, because it is required by Xavier
+      initialization(or most of other initializations) to have 0-mean input with
+      low variance.<br />
+      We can do this by subtracting by its mean, then dividing it by its
+      standard deviation. \[z=\frac{x-\mu}{\sigma}\] to do this, I store the
+      mean and standard deviation of input and output in a network.
+      <pre class="language-rust"><code>#[derive(Debug)]
+pub struct NeuralNetwork {
+  pub layers: Vec&lt;NeuralNetworkLayer&gt;,
+  cost_function: CostFunction,
+  x_mean: Option&lt;Vec&lt;f64&gt;&gt;,
+  x_sd: Option&lt;Vec&lt;f64&gt;&gt;,
+  y_mean: Option&lt;Vec&lt;f64&gt;&gt;,
+  y_sd: Option&lt;Vec&lt;f64&gt;&gt;,
+}</code></pre>
+      Then I call standard scaling or standard unscaling on vector
+      <pre
+        class="language-rust"
+      ><code>fn standard_scale(value: f64, mean: f64, sd: f64) -&gt; f64 {
+  return (value - mean) / sd;
+}
+
+fn standard_unscale(value: f64, mean: f64, sd: f64) -&gt; f64 {
+  return value * sd + mean;
+}
+
+fn vec_standard_scale(x: &amp;Vec&lt;f64&gt;, mean: &amp;Vec&lt;f64&gt;, sd: &amp;Vec&lt;f64&gt;) -&gt; Vec&lt;f64&gt; {
+  return x
+    .iter()
+    .zip(mean)
+    .zip(sd)
+    .map(|((&amp;value, &amp;mean), &amp;sd)| Self::standard_scale(value, mean, sd))
+    .collect::&lt;Vec&lt;f64&gt;&gt;();
+}
+
+fn vec_standard_unscale(x: &amp;Vec&lt;f64&gt;, mean: &amp;Vec&lt;f64&gt;, sd: &amp;Vec&lt;f64&gt;) -&gt; Vec&lt;f64&gt; {
+  return x
+    .iter()
+    .zip(mean)
+    .zip(sd)
+    .map(|((&amp;value, &amp;mean), &amp;sd)| Self::standard_unscale(value, mean, sd))
+    .collect::&lt;Vec&lt;f64&gt;&gt;();
+}</code></pre>
+      Then I call it when training.
+      <pre
+        class="language-rust"
+      ><code>pub fn train(&amp;mut self, x: Vec&lt;Vec&lt;f64&gt;&gt;, y: Vec&lt;Vec&lt;f64&gt;&gt;, learning_rate: f64) {
+  let (x_mean, x_sd): (Vec&lt;f64&gt;, Vec&lt;f64&gt;) = x
+    .iter()
+    .map(|series| mean_and_standard_deviation(series))
+    .unzip();
+  let (y_mean, y_sd): (Vec&lt;f64&gt;, Vec&lt;f64&gt;) = y
+    .iter()
+    .map(|series| mean_and_standard_deviation(series))
+    .unzip();
+  self.x_mean = Some(x_mean);
+  self.x_sd = Some(x_sd);
+  self.y_mean = Some(y_mean);
+  self.y_sd = Some(y_sd);
+
+  for row in 0..x[0].len() {
+    let x_of_row = x.iter().map(|series| series[row]).collect::&lt;Vec&lt;f64&gt;&gt;();
+    let y_of_row = y.iter().map(|series| series[row]).collect::&lt;Vec&lt;f64&gt;&gt;();
+    let predicted = self.forward_propagate(&amp;Self::vec_standard_scale(
+      &amp;x_of_row,
+      &amp;self.x_mean.as_ref().unwrap(),
+      &amp;self.x_sd.as_ref().unwrap(),
+    ));
+
+    let scaled_y = Self::vec_standard_scale(
+      &amp;y_of_row,
+      self.y_mean.as_ref().unwrap(),
+      self.y_sd.as_ref().unwrap(),
+    );
+    self.back_propagate(&amp;scaled_y, learning_rate);
+  }
+}</code></pre>
+
+      <hr />
+
+      <h2 id="back-propagation">Back Propagation</h2>
+      <pre
+        class="language-rust"
+      ><code>pub fn back_propagate(&amp;mut self, actual: &amp;Vec&lt;f64&gt;, learning_rate: f64) {
+  let last_layer = self.layers.last().unwrap();
+  assert_eq!(actual.len(), last_layer.size);
+
+  let z_values = last_layer.z_values.as_ref().unwrap();
+  let activations = last_layer.activations.as_ref().unwrap();
+  let cost_derivative = self.cost_function.derivative(&amp;activations, actual);
+  let activation_derivative = last_layer.activation_function.derivative(&amp;z_values);
+  let mut error = hadamard_product!(cost_derivative, activation_derivative);
+
+  for i in (1..self.layers.len()).rev() {
+    let (left_splitted, right_splitted) = self.layers.split_at_mut(i);
+    let curr_layer = &amp;mut right_splitted[0];
+    let left_layer = &amp;left_splitted[i - 1];
+
+    Self::back_propagate_weights(&amp;error, curr_layer, left_layer, learning_rate);
+    Self::back_propagate_biases(&amp;error, curr_layer, learning_rate);
+
+    if i &gt; 1 {
+      error = hadamard_product!(
+        left_layer
+          .activation_function
+          .derivative(left_layer.z_values.as_ref().unwrap()),
+        matrix_dot_vector(&amp;transpose_matrix(&amp;curr_layer.weights), &amp;error)
+      );
+    }
+  }
+}</code></pre>
+      Let's go through it step by step.
+      <pre
+        class="language-rust"
+      ><code>let cost_derivative = self.cost_function.derivative(&activations, actual);</code></pre>
+      This corresponds to \[\frac{\partial J(y,\hat y)}{\partial a^{[L]}} \text{
+      or } \nabla_{a^{[L]}} J(y,\hat y)\] Next, we compute the error for the
+      final layer by applying the Hadamard product between the cost derivative
+      and the derivative of the activation function:
+
+      <pre
+        class="language-rust"
+      ><code>let mut error = hadamard_product!(cost_derivative, activation_derivative);</code></pre>
+
+      This gives us \[\delta^{[L]}=\frac{\partial J(y,\hat y)}{\partial
+      z^{[L]}}=\frac{\partial J(y,\hat y)}{\partial a^{[L]}} \odot g^{\prime
+      [L]} \bigl(z^{[L]} \bigr)\] Then we propagate through each layer of neural
+      network from right to left updating weights and bias.
+      <br />
+      <pre
+        class="language-rust"
+      ><code>let (left_splitted, right_splitted) = self.layers.split_at_mut(i);
+let curr_layer = &mut right_splitted[0];
+let left_layer = &left_splitted[i - 1];</code></pre>
+      I used split_at_mut here to get 2 references to 2 parts of the
+      vector.(Because Rust doesn't directly allow it)<br />
+      <br />
+      Let's take a look at weight back propagation, Here’s the code for that.
+      <pre class="language-rust"><code>fn back_propagate_weights(
+  error: &amp;Vec&lt;f64&gt;,
+  curr_layer: &amp;mut NeuralNetworkLayer,
+  prev_layer: &amp;NeuralNetworkLayer,
+  learning_rate: f64,
+) {
+  let weight_derivative =
+    vector_dot_transposed_vector(&amp;error, &amp;prev_layer.activations.as_ref().unwrap());
+
+  curr_layer.weights = add_matrices(
+    &amp;curr_layer.weights,
+    &amp;scalar_multiply_matrix(-learning_rate, &amp;weight_derivative),
+  );
+}</code></pre>
+      In mathematical terms, This is simply
+      <div>
+        \[W_{new}^{[l]}=W_{old}^{[l]}-\alpha \cdot \delta^{[l]} \cdot
+        (a^{[l-1]})^T\]
+      </div>
+
+      Now, let's look at how biases are updated. Here’s the code:
+      <pre class="language-rust"><code>fn back_propagate_biases(
+        error: &amp;Vec&lt;f64&gt;,
+        curr_layer: &amp;mut NeuralNetworkLayer,
+        learning_rate: f64,
+      ) {
+        curr_layer.biases = add_vector(
+          &amp;curr_layer.biases,
+          &amp;scalar_multiply_vector(-learning_rate, &amp;error),
+        );
+      }</code></pre>
+      This represents
+      <div>\[b_{new}^{[l]}=b_{old}^{[l]}-\alpha \cdot \delta^{[l]}\]</div>
+
+      <hr />
+
+      <h2 id="activation-function">Implmenting Activation functions</h2>
+      <pre class="language-rust"><code>#[derive(Debug, Clone)]
+pub enum ActivationFunction {
+  Linear,
+  Sigmoid,
+  Tanh,
+}
+
+impl ActivationFunction {
+  /// apply g function to z (g(z))
+  pub fn activate(&amp;self, value: &amp;Vec&lt;f64&gt;) -&gt; Vec&lt;f64&gt; {
+    return match self {
+      Self::Linear =&gt; value.iter().cloned().collect(),
+      Self::Sigmoid =&gt; value
+        .iter()
+        .map(|&amp;value| 1.0 / (1.0 + std::f64::consts::E.powf(-value)))
+        .collect(),
+      Self::Tanh =&gt; value
+        .iter()
+        .map(|&amp;value| 2.0 / (1.0 + std::f64::consts::E.powf(-2.0 * value)) - 1.0)
+        .collect(),
+    };
+  }
+
+  /// apply g' function to z relativee to z (g'(z) or dg(z)/dz)
+  pub fn derivative(&amp;self, value: &amp;Vec&lt;f64&gt;) -&gt; Vec&lt;f64&gt; {
+    return match self {
+      Self::Linear =&gt; vec![1.0; value.len()],
+      Self::Sigmoid =&gt; value
+        .iter()
+        .map(|&amp;value| {
+          let x = std::f64::consts::E.powf(-value);
+          x / (1.0 + x).powi(2)
+        })
+        .collect(),
+      Self::Tanh =&gt; value
+        .iter()
+        .map(|&amp;value| {
+          let x = std::f64::consts::E.powf(-2.0 * value);
+          4.0 * x / (1.0 + x).powi(2)
+        })
+        .collect(),
+    };
+  }
+}
+</code></pre>
+      This code represents linear:
+      <div>\[g(z)=z\] \[g'(z)=1\]</div>
+      , sigmoid:
+      <div>
+        \[g(z)=\frac{1}{1+e^{-z}}\] \[g'(z)=\frac{e^{-x}}{(1+e^{-x})^2}\]
+      </div>
+      , and tanh:
+      <div>
+        \[g(z)=\frac{e^z-e^{-z}}{e^z+e^{-z}}\]
+        \[g'(z)=\frac{4e^{-2x}}{(1+e^{-2x})^2}\]
+      </div>
+
+      <hr />
+
+      <h2 id="xavier">Xavier Weight Initialization</h2>
+
+      <pre class="language-rust"><code>weights = (0..curr_layer_size)
+  .map(|_| {
+    (0..prev_layer_size)
+      .map(|_| Self::random_xavier(prev_layer_size, curr_layer_size))
+      .collect()
+  })
+  .collect();</code></pre>
+      <pre
+        class="language-rust"
+      ><code>fn random_xavier(previous_size: usize, current_size: usize) -&gt; f64 {
+  let x = f64::sqrt(6.0 / (current_size + previous_size) as f64);
+  return rand::thread_rng().gen_range(-x..x);
+}</code></pre>
+      Here I use uniform distribution to random Xavier initial weights.
+      <div>
+        \[ W \sim U
+        \left(-\sqrt{\frac{6}{n^{[l]}+n^{[l-1]}}},\sqrt{\frac{6}{n^{[l]}+n^{[l-1]}}}
+        \right) \]
+      </div>
+
+      <hr />
+
+      <h2 id="evaluation">Testing and Evaluation</h2>
+      I used \(R^2\) as a regression metrics. Let's test back propagation by
+      using the network as linear regression!
+      <h4 id="test-linear-regression">Linear Regression</h4>
+      <pre
+        class="language-rust"
+      ><code>let mut neural_network = NeuralNetwork::new(
+  &[
+    LayerDetails::new(2, ActivationFunction::Linear),
+    LayerDetails::new(1, ActivationFunction::Linear),
+  ],
+  CostFunction::MeanSquaredError,
+);</code></pre>
+      Because it is simply a linear regression, adding layers won't be
+      beneficial at all.
+      <pre class="language-rust"><code>for _ in 1..100000 {
+  let i = rng.gen::&lt;f64&gt;() * scale;
+  let j = rng.gen::&lt;f64&gt;() * scale;
+  input[0].push(i);
+  input[1].push(j);
+  output.push(i + j);
+}
+let output = vec![output];</code></pre>
+      Here I make the network learn number addition. Keep in mind that data
+      shouldn't be ordered(in this case), it can confuse the model.(mae becomes
+      MAE: 6322.935816579028💀)<br />
+      <pre class="language-rust"><code>for _ in 0..100 {
+  let i = rng.gen::&lt;f64&gt;() * scale * 100.0;
+  let j = rng.gen::&lt;f64&gt;() * scale * -1.0;
+  input[0].push(i);
+  input[1].push(j);
+  output.push(i + j);
+}
+let output = vec![output];
+println!("R2: {:?}", neural_network.test(&input, &output));</code></pre>
+      It should work for any value of i,j since it is a linear regression, so I
+      add some scaling.<br />
+      let's look at the result
+      <pre
+        class="language-"
+      ><code>input: [3393.4792105101315, -15.737007729155644], predicted: [3377.742202780977], actual: [3377.7422027809757], error: [1.3642420526593924e-12]
+input: [1174.3041524045357, -37.042016652788206], predicted: [1137.2621357517482], actual: [1137.2621357517476], error: [6.821210263296962e-13]
+input: [1343.107104915474, -12.007633518636052], predicted: [1331.099471396839], actual: [1331.099471396838], error: [9.094947017729282e-13]
+input: [2898.429524218644, -27.90535919769659], predicted: [2870.524165020948], actual: [2870.5241650209473], error: [9.094947017729282e-13]
+input: [1178.9729251137826, -2.5582929622715356], predicted: [1176.4146321515116], actual: [1176.4146321515111], error: [4.547473508864641e-13]
+MAE: [1.0641798553479021e-12]</code></pre>
+      Would you look at that! it worked so well. <br />
+
+      Let's train it to predict a non-linear function
+      <h4 id="test-non-linear">Non Linear</h4>
+      Let's use \(x^3\)
+      <pre class="language-rust"><code>let learning_rate = 0.07;
+let scale: f64 = 10.0;
+let range = 0.0..scale;
+let mut neural_network = NeuralNetwork::new(
+  &[
+    LayerDetails::new(1, ActivationFunction::Linear),
+    LayerDetails::new(5, ActivationFunction::Tanh),
+    LayerDetails::new(1, ActivationFunction::Linear),
+  ],
+  CostFunction::MeanSquaredError,
+);</code></pre>
+      Since it is non-linear function, we need to use non linear activation
+      functions like tanh.
+      <pre
+        class="language-rust"
+      ><code>input: [6.168957965084935], predicted: [235.60157387185356], actual: [234.76612572877272], error: [0.8354481430808391]
+input: [8.686713759546373], predicted: [655.7929106984478], actual: [655.490698316091], error: [0.3022123823568563]
+input: [9.135631714369657], predicted: [764.5672125894091], actual: [762.4576926401394], error: [2.1095199492697247]
+input: [6.696324303220753], predicted: [301.3184915040783], actual: [300.26826543108837], error: [1.0502260729899149]
+input: [8.165756731901206], predicted: [543.7670112908919], actual: [544.489253800095], error: [0.7222425092030562]
+MAE: [0.7881528826835437]</code></pre>
+      It worked quite well!
+
+      <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-rust.min.js"></script>
+    </main>
+  </body>
+</html>
