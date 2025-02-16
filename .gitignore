@@ -1,3 +1,5 @@
+/target
+
 # Bundler cache
 .bundle
 vendor
