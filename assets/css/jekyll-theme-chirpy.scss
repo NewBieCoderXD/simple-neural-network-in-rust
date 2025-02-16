@@ -10,4 +10,10 @@
 html:not([data-mode]), html[data-mode="dark"] {
   --site-title-color: rgb(255, 255, 255, 0.95) !important;
 }
+
+.content main,
+.content main *:not(pre *):not(mjx-container *) {
+  font-family: "Palatino LT Light", sans-serif;
+}
+
 /* append your custom style below */
