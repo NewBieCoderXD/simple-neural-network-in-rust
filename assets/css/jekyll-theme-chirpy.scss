@@ -1,0 +1,13 @@
+---
+---
+
+@use 'main
+{%- if jekyll.environment == 'production' -%}
+  .bundle
+{%- endif -%}
+';
+
+html:not([data-mode]), html[data-mode="dark"] {
+  --site-title-color: rgb(255, 255, 255, 0.95) !important;
+}
+/* append your custom style below */
