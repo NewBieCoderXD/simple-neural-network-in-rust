@@ -131,7 +131,7 @@ description: Math Details for My Simple Neural Network
         <li>
           gradient(\(\nabla\))
           <div>
-            \[ \begin{align} &v = \begin{bmatrix} x \\<br />
+            \[ \begin{align*} &v = \begin{bmatrix} x \\<br />
             y \\<br />
             z \end{bmatrix} \\<br />
             &w \left(x,y,z \right) = x^3+2\frac{yz}{x} \\<br />
@@ -147,7 +147,7 @@ description: Math Details for My Simple Neural Network
             \frac{\partial w \left(x,y,z \right)}{\partial z} \end{bmatrix} =
             \begin{bmatrix} 3x^2-\frac{2yz}{x^2} \\<br />
             2\frac{z}{x} \\<br />
-            2\frac{y}{x} \end{bmatrix} \end{align} \]
+            2\frac{y}{x} \end{bmatrix} \end{align*} \]
           </div>
         </li>
       </ul>
@@ -219,19 +219,19 @@ description: Math Details for My Simple Neural Network
       </div>
       We want \(J_2^\prime\) to be \(0\)<br />
       <div>
-        \[ \begin{align} \frac{d^2 J\left(x\right)}{dx^2}
+        \[ \begin{align*} \frac{d^2 J\left(x\right)}{dx^2}
         &=\frac{0-\frac{dJ\left(x\right)}{dx}}{x_2-x_1}\\<br />
         \left(x_2-x_1 \right) \frac{d^2 J \left( x \right)}{dx^2}&=-\frac{dJ
         \left(x \right)}{dx}\\<br />
         x_2-x_1&=-\frac{dJ \left(x \right)}{dx} \frac{dx^2}{d^2 J \left(x
         \right)}\\<br />
         x_2&=x_1-\frac{dJ \left(x \right)}{dx} \cdot \frac{1}{J^{\prime\prime}}
-        \end{align} \]
+        \end{align*} \]
       </div>
       or
       <div>
-        \[ \begin{align} x_{new}&=x_{old}-\frac{dJ \left(x \right)}{dx} \cdot
-        \frac{1}{J^{\prime\prime}} \end{align} \]
+        \[ \begin{align*} x_{new}&=x_{old}-\frac{dJ \left(x \right)}{dx} \cdot
+        \frac{1}{J^{\prime\prime}} \end{align*} \]
       </div>
       <br />
       Then we will get closer to a local minimum. This is essentially doing
@@ -296,12 +296,12 @@ description: Math Details for My Simple Neural Network
       Because \(b_{i}^{[l]}\) only affects \(z_{i}^{[l]}\) <br />
 
       <div>
-        \[ \begin{align} \frac{\partial J(y,\hat y)}{\partial
+        \[ \begin{align*} \frac{\partial J(y,\hat y)}{\partial
         b_{i}^{[l]}}&=\frac{\partial J(y,\hat y)}{\partial z_{j}^{[l]}}
         \frac{\partial (\sum W_{i,j}^{[l]} \cdot
         a_i^{[l-1]}+b_i^{[l]})}{\partial b_{i}^{[l]}}\\<br />
         \frac{\partial J(y,\hat y)}{\partial b_{i}^{[l]}}&=\frac{\partial
-        J(y,\hat y)}{\partial z_{j}^{[l]}} \end{align} \]
+        J(y,\hat y)}{\partial z_{j}^{[l]}} \end{align*} \]
       </div>
       We can see that weight gradient and bias gradient share the same term,
       let's name it \(\delta_j^{[l]}\) (delta), it's basically an error of
@@ -316,9 +316,9 @@ description: Math Details for My Simple Neural Network
       </div>
       we can write
       <div>
-        \[ \begin{align} \frac{\partial J(y,\hat y)}{\partial
+        \[ \begin{align*} \frac{\partial J(y,\hat y)}{\partial
         W_{i,j}^{[l]}}&=\delta_j^{[l]} a_i^{[l-1]} \\<br />
-        \nabla_{W^{[l]}} J(y,\hat y)&=\delta_j^{[l]} a_i^{[l-1]} \end{align} \]
+        \nabla_{W^{[l]}} J(y,\hat y)&=\delta_j^{[l]} a_i^{[l-1]} \end{align*} \]
       </div>
       <div>
         \[ \nabla_{W^{[l]}} J(y,\hat y) = \begin{bmatrix} a_1^{[l-1]}
@@ -334,9 +334,9 @@ description: Math Details for My Simple Neural Network
       <div>\[ \nabla_{W^{[l]}} J(y,\hat y) = \delta^{[l]} (a^{[l-1]})^T \]</div>
       and
       <div>
-        \[ \begin{align} \frac{\partial J(y,\hat y)}{\partial
+        \[ \begin{align*} \frac{\partial J(y,\hat y)}{\partial
         b_{i}^{[l]}}=\delta_i^{[l]}\\<br />
-        \frac{\partial J(y,\hat y)}{\partial b^{[l]}}=\delta^{[l]} \end{align}
+        \frac{\partial J(y,\hat y)}{\partial b^{[l]}}=\delta^{[l]} \end{align*}
         \]
       </div>
       now if we can find \(\delta^{[l]}\) we are done.
@@ -345,7 +345,7 @@ description: Math Details for My Simple Neural Network
       We need to use chain rule to introduce \(a^{[L]}\) because it is direct
       argument of cost functions.
       <div>
-        \[ \begin{align} \frac{\partial J(y,\hat y)}{\partial
+        \[ \begin{align*} \frac{\partial J(y,\hat y)}{\partial
         z_{j}^{[L]}}&=\frac{\partial J(y,\hat y)}{\partial a_{j}^{[L]}} \cdot
         \frac{\partial a_{j}^{[L]}}{\partial z_{j}^{[L]}} \\<br />
         \frac{\partial J(y,\hat y)}{\partial z_{j}^{[L]}}&=\frac{\partial
@@ -353,7 +353,7 @@ description: Math Details for My Simple Neural Network
         \bigl(z_{j}^{[L]} \bigr) \\<br />
         \frac{\partial J(y,\hat y)}{\partial z_{j}^{[L]}}&=\frac{\partial
         J(y,\hat y)}{\partial a_{j}^{[L]}} \cdot g^{\prime [L]}
-        \bigl(z_{j}^{[L]} \bigr) \end{align}\]
+        \bigl(z_{j}^{[L]} \bigr) \end{align*}\]
       </div>
       vector form:<br />
       <div>
@@ -369,7 +369,7 @@ description: Math Details for My Simple Neural Network
       <h4 id="error-2">• Error of \(l\)-th Level</h4>
       <!-- prettier-ignore -->
       <div>
-        \[ \begin{align} 
+        \[ \begin{align*} 
         \delta_i^{[l]} &= \frac{\partial J(y,\hat y)}{\partial z_i^{[l]}} \\<br> 
         &= \sum_{j} \frac{\partial J(y,\hat y)}{\partial
         z_j^{[l+1]}} \cdot \frac{\partial z_j^{[l+1]}}{\partial z_i^{[l]}} \\<br> 
@@ -403,7 +403,7 @@ description: Math Details for My Simple Neural Network
         \end{bmatrix} \\<br>
         &=g^{\prime [l]} \bigl(z^{[l]} \bigr) \odot \left (W^{[l+1]} \right)^T \cdot \delta^{[l+1]} \\<br>
         \delta^{[l-1]} &=g^{\prime [l-1]} \bigl(z^{[l-1]} \bigr) \odot \left (W^{[l]} \right)^T \cdot \delta^{[l]}
-        \end{align} \]
+        \end{align*} \]
       </div>
       Conclusion<br />
       <div>
@@ -468,24 +468,24 @@ description: Math Details for My Simple Neural Network
       So we want variance of \(z\) to be near the same. Let's find expectation
       of \(z\) and \(a\)
       <div>
-        \[ \begin{align} &z_i^{[l]}=\sum_{j=1}^{n^{[l-1]}} W_{j,i}^{[l]} \cdot
+        \[ \begin{align*} &z_i^{[l]}=\sum_{j=1}^{n^{[l-1]}} W_{j,i}^{[l]} \cdot
         a_j^{[l-1]} + b_i^{[l]} \\<br />
         &z_i^{[1]}=\sum_{j=1}^{n^{[0]}} W_{j,i}^{[1]} \cdot a_j^{[0]} +
         b_i^{[0]} \\<br />
         &E[z_i^{[1]}]=n^{[0]}\cdot E[W_{j,i}^{[1]}] \cdot E[a_j^{[0]}] \\<br />
         &E[z_i^{[1]}]=0 \\<br />
-        \end{align} \]
+        \end{align*} \]
       </div>
       we know that
       <div>
-        \[ a_i^{[l]}=g^{[l]} \left( z_i^{[l]} \right) \] so \[ \begin{align}
+        \[ a_i^{[l]}=g^{[l]} \left( z_i^{[l]} \right) \] so \[ \begin{align*}
         E[a_i^{[l]}]&=E[g^{[l]} \left( z_i^{[l]} \right)] \\<br />
         &=\int_{-\infty}^{\infty} g^{[l]} \left( z_i^{[l]} \right) p \left(
-        z_i^{[l]} \right) dz \end{align} \]
+        z_i^{[l]} \right) dz \end{align*} \]
       </div>
       We assume that g is a symmetric odd function \(g(-z)=-g(z)\), and z is
       symmetrically distributed(because \(w_{i,j}, a_i\) are symmetrically
-      distributed) \(p(-z)=p(z)\). \[ \begin{align}
+      distributed) \(p(-z)=p(z)\). \[ \begin{align*}
       E[a_i^{[l]}]&=\int_{-\infty}^{0} g^{[l]} \left( z_i^{[l]} \right) p \left(
       z_i^{[l]} \right) dz+\int_{0}^{\infty} g^{[l]} \left( z_i^{[l]} \right) p
       \left( z_i^{[l]} \right) dz \\<br />
@@ -499,7 +499,7 @@ description: Math Details for My Simple Neural Network
       \right) dz+\int_{0}^{\infty} g^{[l]} \left( z_i^{[l]} \right) p \left(
       z_i^{[l]} \right) dz \\<br />
       &=0\\<br />
-      \end{align} \] Doing this repeatedly, we can see that \(E[a_i^{[l]}]=0\)
+      \end{align*} \] Doing this repeatedly, we can see that \(E[a_i^{[l]}]=0\)
       and \(E[z_i^{[l]}]=0\) for all i, l <br />
       Okay, let's find variance of weight \[
       Var(z_i^{[l]})=Var(\sum_{j}^{n^{[l-1]}} W_{j,i}^{[l]} \cdot
@@ -517,10 +517,10 @@ description: Math Details for My Simple Neural Network
       We want \(E(W_{j,i}^{[l]})\) and \( E(a_j^{[l-1]})\) to be \(0\) so we can
       cut it out here!
       <div>
-        \[ \begin{align} &Var(W_{j,i}^{[l]} \cdot a_j^{[l-1]})=
+        \[ \begin{align*} &Var(W_{j,i}^{[l]} \cdot a_j^{[l-1]})=
         Var(W_{j,i}^{[l]}) \cdot Var( a_j^{[l-1]}) \\<br />
         &Var(z_i^{[l]})=n^{[l-1]} Var(W_{j,i}^{[l]}) \cdot Vec(a_j^{[l-1]})
-        \end{align} \]
+        \end{align*} \]
       </div>
       We require that \(g^{[l]}(z) \approx z\) for small \(z\), so
       \(Var(a_i^{[l]}) \approx Var(z_i^{[l]})\)
@@ -529,8 +529,8 @@ description: Math Details for My Simple Neural Network
       </div>
       We want variance of \(z\) to be the same each propagation
       <div>
-        \[ \begin{align} 1=n^{[l-1]} Var(W_{j,i}^{[l]}) \\<br />
-        Var(W_{j,i}^{[l]}) = \frac{1}{n^{[l-1]} } \end{align} \]
+        \[ \begin{align*} 1=n^{[l-1]} Var(W_{j,i}^{[l]}) \\<br />
+        Var(W_{j,i}^{[l]}) = \frac{1}{n^{[l-1]} } \end{align*} \]
       </div>
       This variance is best suited for forward propagation,but what about back
       propagation?<br />
@@ -541,7 +541,7 @@ description: Math Details for My Simple Neural Network
       </div>
       for small \(z\), \(g(z) \approx z\) so \(g^{\prime}(z)=1\)
       <div>
-        \[ \begin{align} \delta_i^{[l-1]} &\approx \sum_j \delta_j^{[l]} \cdot
+        \[ \begin{align*} \delta_i^{[l-1]} &\approx \sum_j \delta_j^{[l]} \cdot
         W_{i,j}^{[l]} \\<br />
         Var(\delta_i^{[l-1]}) &\approx Var(\sum_j \delta_j^{[l]} \cdot
         W_{i,j}^{[l]}) \\<br />
@@ -551,16 +551,16 @@ description: Math Details for My Simple Neural Network
         Var(W_{i,j}^{[l]}) + E(W_{i,j}^{[l]})^2 Var(\delta_j^{[l]})
         +Var(\delta_j^{[l]}) Var(W_{i,j}^{[l]})] \\<br />
         Var(\delta_i^{[l-1]}) &\approx n^{[l]} Var(\delta_j^{[l]})
-        Var(W_{i,j}^{[l]}) \end{align} \]
+        Var(W_{i,j}^{[l]}) \end{align*} \]
       </div>
       Do you see a pattern here? :) <br />
       We also don't want error's variance to be too high or too low, so error of
       all layers should have the same value of variance just like what we did
       with \(z\) above!
       <div>
-        \[ \begin{align} 1 &= n^{[l]} Var(W_{i,j}^{[l]}) \\<br />
+        \[ \begin{align*} 1 &= n^{[l]} Var(W_{i,j}^{[l]}) \\<br />
         Var(W_{i,j}^{[l]})&= \frac{1}{n^{[l]} }\\<br />
-        \end{align} \]
+        \end{align*} \]
       </div>
       So best variance of weight would be average of \(\frac{1}{n^{[l]}}\) and
       \(\frac{1}{n^{[l-1]}}\). <br />
@@ -583,17 +583,17 @@ description: Math Details for My Simple Neural Network
       distribution. <br />
       In case of uniform distribution:
       <div>
-        \[ \begin{align} W \sim U(a,b) \\<br />
+        \[ \begin{align*} W \sim U(a,b) \\<br />
         E(W)=\frac{a+b}{2}&=0 \\<br />
         a&=-b \\<br />
-        \end{align}\]
+        \end{align*}\]
       </div>
       <div>
-        \[\begin{align} Var(W)=\frac{(a+b)^2}{12}&=\frac{2}{n^{[l]}+n^{[l-1]}}
+        \[\begin{align*} Var(W)=\frac{(a+b)^2}{12}&=\frac{2}{n^{[l]}+n^{[l-1]}}
         \\<br />
         \frac{(2a)^2}{12}&=\frac{2}{n^{[l]}+n^{[l-1]}} \\<br />
         a&=-\sqrt{\frac{6}{n^{[l]}+n^{[l-1]}}} \\<br />
-        \end{align} \]
+        \end{align*} \]
       </div>
       <div>
         \[ W \sim U
